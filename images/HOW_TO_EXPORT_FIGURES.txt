@@ -1,0 +1,18 @@
+Put your MATLAB plot images in this folder (PNG works best).
+
+Export a figure from MATLAB with:
+
+    exportgraphics(gcf, 'lab1_fig1.png', 'Resolution', 200)
+
+or in a Live Script: right click on the plot -> Save As -> PNG.
+
+Then insert it in the .tex file (the images/ prefix is not needed,
+LaTeX already searches this folder):
+
+    \labfigure{lab1_fig1.png}{fig:l1f1}
+
+and refer to it in your text as:
+
+    ... a small leakage can be seen (\figref{fig:l1f1}).
+
+Naming suggestion: lab1_fig1.png, lab1_fig2.png, lab2_fig1.png, ...

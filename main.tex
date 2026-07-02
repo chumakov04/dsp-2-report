@@ -1,0 +1,270 @@
+% =====================================================================
+%  DSP 2 LAB DIARY -- Egor Chumakov
+%
+%  Structure copied from the DSP1 Word lab diary, adapted to the
+%  DSP2 lab exercise sheets (Lab 1 - Lab 5).
+%  Title page and general styling follow the university LaTeX
+%  template used in the Natural Computation course project.
+%
+%  Project layout:
+%    main.tex             preamble, title page, table of contents
+%    sections/lab1..5.tex one file per lab chapter
+%    sections/sources.tex sources chapter
+%    images/              all figures (MATLAB plots as PNG)
+%    code/                optional place for .m files
+%
+%  How to work with it:
+%    * Write plain text directly under each heading.
+%    * Insert a figure:
+%        \labfigure{lab1_fig1.png}{fig:l1f1}
+%      and refer to it in the text:
+%        (\figref{fig:l1f1})
+%    * Insert code:
+%        \codeused
+%        \begin{matlab} ... \end{matlab}
+%    * Compile with:  latexmk -pdf main.tex
+%      (or upload the whole folder to overleaf.com)
+% =====================================================================
+
+\documentclass[12pt,a4paper]{article}
+
+% ---------------------------------------------------------------------
+% Page layout
+% Word-like margins as in the DSP1 diary
+% ---------------------------------------------------------------------
+\usepackage[a4paper,margin=2.54cm,headheight=15pt]{geometry}
+
+% ---------------------------------------------------------------------
+% Encoding and language
+% ---------------------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+% ---------------------------------------------------------------------
+% Mathematics
+% amsmath must be loaded before newtxmath
+% ---------------------------------------------------------------------
+\usepackage{amsmath,amsthm,amssymb}
+
+% ---------------------------------------------------------------------
+% Font: Times New Roman look for text and math (as in the DSP1 diary)
+% ---------------------------------------------------------------------
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+
+% ---------------------------------------------------------------------
+% Line spacing (university template style)
+% ---------------------------------------------------------------------
+\usepackage[onehalfspacing]{setspace}
+
+% ---------------------------------------------------------------------
+% Paragraphs: vertical space between paragraphs, no indentation
+% ---------------------------------------------------------------------
+\usepackage[parfill]{parskip}
+
+% ---------------------------------------------------------------------
+% Graphics
+% all images live in the images/ folder
+% ---------------------------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{images/}}
+
+% ---------------------------------------------------------------------
+% Float control
+% float  : provides [H] to keep a figure exactly where it is written
+% placeins: provides \FloatBarrier to flush pending figures if needed
+% ---------------------------------------------------------------------
+\usepackage{float}
+\usepackage{placeins}
+
+% ---------------------------------------------------------------------
+% Colours
+% ---------------------------------------------------------------------
+\usepackage{xcolor}
+
+% ---------------------------------------------------------------------
+% Page header: page number top right on every page (as in the DSP1 diary)
+% ---------------------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% ---------------------------------------------------------------------
+% Heading styles (DSP1 diary look)
+%   section       : "1.  Lab exercise 1: ..."   bold
+%   subsection    : "1.1  Laboratory 1 -- ..."  bold
+%   subsubsection : "1.1.1  (a) ..."            normal weight
+% ---------------------------------------------------------------------
+\usepackage{titlesec}
+\setcounter{secnumdepth}{3}
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.9em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize}{\thesubsubsection}{0.9em}{}
+\titlespacing*{\section}{0pt}{18pt}{10pt}
+\titlespacing*{\subsection}{1.2em}{14pt}{8pt}
+\titlespacing*{\subsubsection}{2.6em}{12pt}{6pt}
+
+% ---------------------------------------------------------------------
+% Table of contents: 3 levels with dotted leaders (DSP1 diary look)
+% ---------------------------------------------------------------------
+\usepackage{tocloft}
+\setcounter{tocdepth}{3}
+% babel resets \contentsname, so the TOC title must be set through babel
+\addto\captionsenglish{\renewcommand{\contentsname}{Table of Contents}}
+% page number top right also on the first TOC page
+\tocloftpagestyle{fancy}
+\renewcommand{\cfttoctitlefont}{\large\bfseries}
+\renewcommand{\cftsecaftersnum}{.}
+\renewcommand{\cftsecfont}{\bfseries\itshape}
+\renewcommand{\cftsecpagefont}{\bfseries\itshape}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsubsecfont}{\bfseries}
+\renewcommand{\cftsubsecpagefont}{\bfseries}
+
+% ---------------------------------------------------------------------
+% Figure captions: just "Figure N", left aligned, blue, below the figure
+% ---------------------------------------------------------------------
+\usepackage{caption}
+\definecolor{captionblue}{RGB}{47,84,150}
+\captionsetup[figure]{labelsep=none,textformat=simple,
+  justification=raggedright,singlelinecheck=false,
+  font={small},labelfont={color=captionblue}}
+
+% ---------------------------------------------------------------------
+% MATLAB code blocks: grey background with MATLAB syntax colours
+% ---------------------------------------------------------------------
+\usepackage{listings}
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{mlkeyword}{RGB}{14,0,255}
+\definecolor{mlcomment}{RGB}{2,128,9}
+\definecolor{mlstring}{RGB}{170,4,249}
+\lstdefinestyle{matlabcode}{
+  language=Matlab,
+  basicstyle=\small\ttfamily\linespread{1.05}\selectfont,
+  keywordstyle=\color{mlkeyword},
+  commentstyle=\color{mlcomment},
+  stringstyle=\color{mlstring},
+  backgroundcolor=\color{codebg},
+  showstringspaces=false,
+  breaklines=true,
+  keepspaces=true,
+  columns=fullflexible,
+  aboveskip=8pt,belowskip=8pt,
+  xleftmargin=4pt,xrightmargin=4pt,
+  framesep=4pt,frame=single,rulecolor=\color{codebg}}
+\lstnewenvironment{matlab}{\lstset{style=matlabcode}}{}
+
+% ---------------------------------------------------------------------
+% Helper commands
+% ---------------------------------------------------------------------
+% \labfigure[optional width]{file}{label}
+% centered figure with a "Figure N" caption below it
+\newcommand{\labfigure}[3][0.85\textwidth]{%
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=#1]{#2}
+    \caption{}\label{#3}
+  \end{figure}}
+
+% \figref{label} -> "Figure 3"
+% use it in brackets like the DSP1 diary: (\figref{fig:l1f1})
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+
+% \codeused           -> "Code used:"
+% \codeused[ (note)]  -> "Code used (note):"
+\newcommand{\codeused}[1][]{\par\textbf{Code used#1:}\par\vspace{-4pt}}
+
+% \hx -> times sign for "3 x 3" inside headings
+\newcommand{\hx}{\texorpdfstring{\,\texttimes\,}{x}}
+
+% ---------------------------------------------------------------------
+% Hyperlinks: blue links as in the university template
+% hyperref is loaded last on purpose
+% ---------------------------------------------------------------------
+\usepackage[breaklinks=true,colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue,unicode]{hyperref}
+
+% ---------------------------------------------------------------------
+% PDF metadata (as in the FH Salzburg ITS template, etc/metadata.tex)
+% ---------------------------------------------------------------------
+\hypersetup{%
+  bookmarksopen = true,
+  pdfauthor     = {Egor Chumakov},
+  pdftitle      = {Egor Chumakov -- Digital Signal Processing 2 Lab Diary},
+  pdfsubject    = {Laboratory protocols -- FH Salzburg}}
+
+% =====================================================================
+%  DOCUMENT
+% =====================================================================
+\begin{document}
+
+% ---------------------------------------------------------------------
+% Title page
+% Layout follows the FH Salzburg ITS template (frontmatter/Deckblatt.tex),
+% translated to English for this diary
+% TODO: replace AISE-M-XXXXXX with the real DSP2 course code
+% ---------------------------------------------------------------------
+\begin{titlepage}
+  \centering
+
+  % official FH Salzburg logo
+  \includegraphics[width=2.4cm]{fhs_logo.pdf}
+
+  \vspace*{1.5cm}
+
+  {\Large\bfseries Digital Signal Processing 2 Lab (AISE-M-XXXXXX)}
+
+  \vspace*{0.6cm}
+
+  {\large\bfseries Laboratory protocols,\\
+   including homework assignments}
+
+  \vfill
+
+  carried out at the study programme\\
+  Applied Image and Signal Processing\\
+  Fachhochschule Salzburg GmbH
+
+  \vspace*{1cm}
+
+  submitted by\\
+  Egor Chumakov -- 2510721013\\
+  \href{mailto:fhs54864@fh-salzburg.ac.at}{fhs54864@fh-salzburg.ac.at}
+
+  \vfill
+
+  Lecturer: FH-Ass.\ Prof DI(FH) DI Peter Haber
+
+  \vspace*{1cm}
+
+  % TODO: change to the submission date
+  Puch/Salzburg, 2 July 2026
+
+  \vspace*{1cm}
+\end{titlepage}
+
+% ---------------------------------------------------------------------
+% Optional signed declaration page (FH Salzburg ITS template style)
+% remove the leading % to enable it
+% ---------------------------------------------------------------------
+% \input{sections/declaration}
+
+% ---------------------------------------------------------------------
+% Table of contents (updates automatically, compile twice)
+% ---------------------------------------------------------------------
+\setcounter{page}{2}
+\tableofcontents
+
+% ---------------------------------------------------------------------
+% Lab chapters
+% ---------------------------------------------------------------------
+\input{sections/lab1}
+\input{sections/lab2}
+\input{sections/lab3}
+\input{sections/lab4}
+\input{sections/lab5}
+\input{sections/sources}
+
+\end{document}

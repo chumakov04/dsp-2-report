@@ -1,0 +1,77 @@
+% =====================================================================
+%  LAB 2 -- Notch and Comb Filter Design
+%  Headings copied word for word from DSP2_Lab2_Exercise.pdf
+% =====================================================================
+\clearpage
+\section{Lab exercise 2: Notch and Comb Filter Design}
+
+TODO: chapter introduction -- theory about notch and comb filters.
+
+\subsection{Laboratory 2 -- Design a Notch filter using the Pol-Zero diagram for a stop frequency fs=1000Hz and a sample rate fa=10000Hz. Use as the pole radius r=0.98.}
+
+\subsubsection{(a) Write a function to design a Notch filter with the following input parameters:}
+
+% given on the exercise sheet:
+\begin{itemize}
+  \item stop frequency fs
+  \item pole radius r
+  \item sampling rate fa
+\end{itemize}
+With
+\begin{equation}
+  H(z) = \frac{(z - e^{j\omega_0})(z - e^{-j\omega_0})}
+              {(z - re^{j\omega_0})(z - re^{-j\omega_0})}
+       = \frac{z^2 - 2z\cos(\omega_0) + 1}
+              {z^2 - 2zr\cos(\omega_0) + r^2}
+  \tag{1}
+\end{equation}
+and
+\begin{equation}
+  \omega_0 = 2\pi\frac{f_s}{f_a}
+  \tag{2}
+\end{equation}
+
+TODO
+
+\subsubsection{(b) Use your Notch filter function to analyse on the one hand same stop frequencies with different sample rates and on the other hand different stop frequencies with the same sample rate with the amplitude and phase response as well with the pol-zero-map.}
+
+TODO
+
+\subsubsection{(c) Analyse with your Notch filter function also the influence of the pole radius r on the characteristics of the filter with the amplitude and phase response as well plot the pole-zero maps.}
+
+TODO
+
+\subsubsection{(d) Correct the gain factor for your notch filter function.}
+
+TODO
+
+\subsection{Laboratory 2 -- Design a Comb filter out of a Butterworth low-pass filter with 3 repetitions}
+
+\subsubsection{(a) Write a Comb filter function which can design a Comb filter by taking the following parameters:}
+
+% given on the exercise sheet:
+\begin{itemize}
+  \item filter coefficients b
+  \item filter coefficients a
+  \item repetitions n
+\end{itemize}
+
+TODO
+
+\subsubsection{(b) Use your Comb filter function and analyse it with the amplitude and phase response of the filter.}
+
+TODO
+
+\subsection{Homework 2 (Implement your own Notch-Comb filter function)}
+
+\subsubsection{Implement your own Notch-Comb filter function with the following parameters:}
+
+% given on the exercise sheet:
+\begin{itemize}
+  \item sample rate fa
+  \item repetitions n
+  \item pole radius r
+\end{itemize}
+Show the results with appropriate diagrams
+
+TODO
