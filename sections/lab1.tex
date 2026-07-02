@@ -16,33 +16,7 @@ method, equiripple method, that will be followed in the laboratory work.
 
 \subsubsection{(a) Use the functions developed in the last semester to analyze the audio file ps.wav to determine which noise signal is present.}
 
-% =====================================================================
-%  EXAMPLE BLOCK -- this shows the writing pattern of the DSP1 diary.
-%  Replace the text, figure and code with your real content.
-%  Every task below follows exactly this recipe:
-%     1) figures        \labfigure{lab1_fig1.png}{fig:...}
-%        (put the PNG files into the images/ folder)
-%     2) interpretation text, referring to figures like (\figref{fig:...})
-%     3) \codeused  +  matlab code block
-% =====================================================================
-% replace example-image-a with your own file from images/
-\labfigure{example-image-a}{fig:l1-example}
-
-The spectrum of the audio file shows a strong peak at a single frequency
-(\figref{fig:l1-example}), therefore the noise signal present in ps.wav is a
-sinusoidal interference. TODO: replace with your interpretation.
-
-\codeused
-\begin{matlab}
-% read the audio file
-[x, fs] = audioread('ps.wav');
-% frequency spectrum with own function from last semester
-N = length(x);
-magnitude = abs(fft(x));
-fAxis = (0:N-1)*fs/N;
-stem(fAxis, magnitude)
-\end{matlab}
-% ================== end of the example block =========================
+TODO
 
 \subsubsection{(b) Experiment with the fdatool (rectangle window) and create a FIR filter that is able to remove the interference from the audio file.}
 
