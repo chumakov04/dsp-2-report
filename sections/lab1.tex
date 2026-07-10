@@ -67,7 +67,11 @@ Quantization errors occurs in digital filters because filter coefficients $a_n$ 
 
 \subsection{Laboratory 1 -- The task is to compare FIR Filters with different windows and to implement an own IIR filter function.}
 
+For the laboratory work above described theory will be applied and referred.
+
 \subsubsection{(a) Use the functions developed in the last semester to analyze the audio file ps.wav to determine which noise signal is present.}
+
+ps.wav has sampling frequency $f_s$ = 22050 Hz. To analyze noise signal presence at specific frequency it is sufficient to transform signal into frequency domain using FFT and see which frequencies are present in the signal.
 
 \begin{figure}[H]
   \includegraphics[width=0.32\textwidth]{pswav-td.jpg}\hspace{4pt}
@@ -76,7 +80,7 @@ Quantization errors occurs in digital filters because filter coefficients $a_n$ 
   \caption{ps.wav time domain, frequency spectrum, zoomed frequency spectrum}\label{fig:l1-pswav}
 \end{figure}
 
-TODO
+Time domain is noisy signal, not much information can be gained from time domain plot. Based on the frequency domain, noise signal is unusual spike at 999-1001 Hz with amplitude of 11029. Since there is specific frequency range to be removed, band stop FIR filter is required.
 
 \subsubsection{(b) Experiment with the fdatool (rectangle window) and create a FIR filter that is able to remove the interference from the audio file.}
 
@@ -85,9 +89,11 @@ TODO
   \caption{FIR bandstop filter, rectangular window}\label{fig:l1-fir-rect}
 \end{figure}
 
-TODO
+FIR bandstop filter designed in fdatool with rectangular window, order $N$ = 230 and stopband range between 950 and 1050 Hz chosen arbitrary (not too narrow, not too wide range). High order is needed because with narrow frequency range to be filtered, low order like 10 results in highpass filter instead of bandstop. As discussed in theoretical part, rectangular windows leads to ripple in side band regardless of filter order, achieving only -20 $dB$ attenuation at stop band.
 
 \subsubsection{(c) Export the filter using the File/Export menu and filter the audio file. Analyze the result visually in the frequency spectrum as well as aural.}
+
+Exported as Num variable.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{pswav-filt.jpg}\hspace{4pt}
@@ -95,26 +101,29 @@ TODO
   \caption{frequency spectrum after FIR bandstop filtering}\label{fig:l1-pswav-filt}
 \end{figure}
 
-TODO
+After filtering with filter(b = Num, a = 1, x), where 1 means no feedback coefficients with $a = 1$ (denominator of transfer function is 1), frequency spectrum shows spike at around 1000 Hz reduced from magnitude 11000 to 1100. As expected with rectangular window, small leakage occurred around bandstop frequency range due to sidelobes introduced by rectangular window function.
 
 \subsubsection{(d) Use different windows for designing the FIR filter and compare the results and explain the advantages and disadvantages. Compare the different filters with the fvtool or with the freqz function}
 
+2 other window types hamming, blackman use order $N$ = 250 (not exactly the same as rectangular, but this is what I did during the lab, should not impact results significantly). 
+
 \begin{figure}[H]
-  \includegraphics[width=0.32\textwidth]{fir-bandstop-d-hamming.jpg}\hspace{4pt}
-  \includegraphics[width=0.32\textwidth]{fir-bandstop-d-blackman.jpg}\hspace{4pt}
-  \includegraphics[width=0.32\textwidth]{fir-bandstop-d-equiripple.jpg}
-  \caption{FIR bandstop filters: hamming, blackman, equiripple}\label{fig:l1-fir-windows}
+  \includegraphics[width=0.48\textwidth]{fir-bandstop-d-hamming.jpg}\hspace{4pt}
+  \includegraphics[width=0.48\textwidth]{fir-bandstop-d-blackman.jpg}
+  \caption{FIR bandstop with hamming, blackman}\label{fig:l1-fir-windows}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{fvtool-hamm-blck.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{fvtool-hamm-blck-2.jpg}
-  \caption{fvtool comparison: rectangular, hamming, blackman}\label{fig:l1-fvtool-hamm-blck}
+  \caption{fvtool compare rectangular, hamming, blackman}\label{fig:l1-fvtool-hamm-blck}
 \end{figure}
 
-TODO
+2 other window types hamming, blackman use order $N$ = 250 using filter design tool. Rectangular reaches around -20 $dB$ at stop band due to its steep filter curve transition, but has sidelobe ripples in pass band. Hamming and blackman have smooth pass band without ripples, but their wider main lobe smooths out narrow notch, reaching only -7.2 $dB$ and -5.2 $dB$ attenuation. So for such narrow stopband, windows with stronger sidelobe suppression actually seem to attenuate less at same order.
 
 \subsubsection{(e) Construct the FIR filter with the Equiripple method. Analyze the differences to the Window method.}
+
+Equiripple is not a window method, filter instead distributes ripple equally across pass band and stop band.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{fvtool-equiripple.jpg}\hspace{4pt}
@@ -122,7 +131,7 @@ TODO
   \caption{fvtool comparison and filtered spectrum, equiripple method}\label{fig:l1-equiripple}
 \end{figure}
 
-TODO
+fvtool shows that equiripple recahes more than $-60$ dB attenuation at stop band while keeping narrow transition, compared to only $-20$ dB with rectangular. Pass band has smaller than original sidelobs equally distributed ripples around notch. Frequency spectrum of filtered signal trasnformed with FFT confirms that spike at around 1000 Hz is completely removed, which is best result comapred to all 3 window functions applied (rectangular which had highest stopband attenuation reached only -20 $dB$)
 
 \subsubsection{(f) Implement your own FIR and IIR filtering function for vector-signals.}
 
@@ -135,7 +144,7 @@ TODO
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{custom-fir.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{custom-fir-2.jpg}
-  \caption{custom FIR filter output spectrum and zoomed view}\label{fig:l1-custom-fir}
+  \caption{custom FIR filter output spectrum}\label{fig:l1-custom-fir}
 \end{figure}
 
 \begin{figure}[H]
