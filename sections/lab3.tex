@@ -20,15 +20,46 @@ TODO: chapter introduction -- theory about LMS adaptive filters.
 
 \subsubsection{(a) Check your adaptive filter routine if it is reconstructing the original signal.}
 
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{lab3-signals.jpg}\hspace{4pt}
+  \includegraphics[width=0.48\textwidth]{lab3-disturbed-filtered.jpg}
+  \caption{input signals and filtered result}\label{fig:l3-signals}
+\end{figure}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{lab3-bcoeff.jpg}
+  \caption{b coefficient convergence}\label{fig:l3-bcoeff}
+\end{figure}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{lab3-a-reconstruction.jpg}
+  \caption{original vs recovered signal and difference}\label{fig:l3-reconstruction}
+\end{figure}
+
 TODO
 
 \subsubsection{(b) Use different \texorpdfstring{$\mu$}{µ} and validate their performance via the b coefficients accordingly to the adaptation in time.}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{lab3-b-mu-comparison.jpg}
+  \caption{b coefficient convergence for different mu values}\label{fig:l3-mu}
+\end{figure}
 
 TODO
 
 \subsection{Laboratory 3 -- Adapt your filter routine to be able to read any Wave-Soundfile where in Channel\_1 the samples of the disturbed signal and Channel\_2 the samples of the interference (noise signal) is stored.}
 
 \subsubsection{(a) Test your filter routine with the given Soundfile sound.wav}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{lab3-sound-signals.jpg}
+  \caption{sound.wav adaptive filtering}\label{fig:l3-sound}
+\end{figure}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{lab3-sound-bcoeff.jpg}
+  \caption{sound.wav b coefficients over time}\label{fig:l3-sound-bcoeff}
+\end{figure}
 
 TODO
 

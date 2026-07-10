@@ -1,36 +1,86 @@
-% =====================================================================
-%  LAB 1 -- FIR und IIR Filter Design
-%  Headings copied word for word from DSP2_Lab1.pdf
-% =====================================================================
 \clearpage
 \section{Lab exercise 1: FIR und IIR Filter Design}
 
-% ---------------------------------------------------------------------
-% Like in the DSP1 diary, each chapter starts with your own theory
-% introduction (about one page) before the first subsection.
-% ---------------------------------------------------------------------
-TODO: chapter introduction -- theory about FIR and IIR filters, window
-method, equiripple method, that will be followed in the laboratory work.
+$N$ order system requires $N$ past signal values for calculation of the current output value. For example, a second order system requires values up to 2 clock cycles back: $x_{i-1}$, $x_{i-2}$.
+
+Finite impulse response filters operate only with past input values of the signal, with the impulse response duration corresponding to the filter order.
+
+$y_i = \sum_{n=0}^{N} b_n \cdot x_{i-n}$
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{firprinciple.jpg}
+  \caption{FIR filter principle}\label{fig:l1-firprinciple}
+\end{figure}
+
+Z-transform is laplace transform of discrete pulse consisting of weighted dirac pulses. Since past output values are not used for the calculation, transfer function $G(z)$ depends only on the coefficients $b_n$. $z^{-n}$ corresponds to shift of indices $i \to i-n$, equivalently shift/delay of $N$ clock cycles. $Y(z)$, $X(z)$, $G(z)$ are z-transformed output signal, input signal, and impulse system response correspondingly. NB: FIR filter of order N has exactly zeros, which occur several times and can lie outside of the unit circle.
+
+$Y(z) = X(z) \cdot G(z) \;\Longleftrightarrow\; G(z) = \frac{Y(z)}{X(z)} = b_0 + b_1 z^{-1} + b_2 z^{-2} + \cdots + b_N z^{-N}$. 
+
+FIR filters have no feedback, therefore are always numerically stable. The output of the FIR filter is convolution of input values with filter coefficients $b_n$. If the filter order is increased, the steepness of a filter curve is increased, but not the damping effect, which is controlled with a window function. Since FIR is convolution in time domain, which corresponds to multiplication in frequency domain, desired frequency response of FIR filter is defined in frequency domain and transformed to the time domain to get filter coefficients. Window function multiplies ideal impulse response and truncates it to $N+1$ coefficients. Thus, even with high filter order $N$ ripples in passband and stopband remain, specifically with rectangular window function. For a smoother filtering hamming and blackman functions are used in this lab, with filter coefficients obtained by multiplying theoretically infinite coefficients by window function $b_n = w(t) \cdot b_{n,\infty}$.
+
+Another important property of FIR filters is linear phase, meaning that the signal is shifted independent of frequency in time domain. For linear phase, the filter coefficients must be symmetric (odd number of filter coefficients).
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{linearphase.png}
+  \caption{linear phase property of FIR filters}\label{fig:l1-linearphase}
+\end{figure}
 
 \subsection{Laboratory 1 -- The task is to compare FIR Filters with different windows and to implement an own IIR filter function.}
 
 \subsubsection{(a) Use the functions developed in the last semester to analyze the audio file ps.wav to determine which noise signal is present.}
 
+\begin{figure}[H]
+  \includegraphics[width=0.32\textwidth]{pswav-td.jpg}\hspace{4pt}
+  \includegraphics[width=0.32\textwidth]{pswav-freq.jpg}\hspace{4pt}
+  \includegraphics[width=0.32\textwidth]{pswav-td-2.jpg}
+  \caption{ps.wav time domain, frequency spectrum, zoomed frequency spectrum}\label{fig:l1-pswav}
+\end{figure}
+
 TODO
 
 \subsubsection{(b) Experiment with the fdatool (rectangle window) and create a FIR filter that is able to remove the interference from the audio file.}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{fir-bandstop-b.jpg}
+  \caption{FIR bandstop filter, rectangular window}\label{fig:l1-fir-rect}
+\end{figure}
 
 TODO
 
 \subsubsection{(c) Export the filter using the File/Export menu and filter the audio file. Analyze the result visually in the frequency spectrum as well as aural.}
 
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{pswav-filt.jpg}\hspace{4pt}
+  \includegraphics[width=0.48\textwidth]{pswav-filt-2.jpg}
+  \caption{frequency spectrum after FIR bandstop filtering}\label{fig:l1-pswav-filt}
+\end{figure}
+
 TODO
 
 \subsubsection{(d) Use different windows for designing the FIR filter and compare the results and explain the advantages and disadvantages. Compare the different filters with the fvtool or with the freqz function}
 
+\begin{figure}[H]
+  \includegraphics[width=0.32\textwidth]{fir-bandstop-d-hamming.jpg}\hspace{4pt}
+  \includegraphics[width=0.32\textwidth]{fir-bandstop-d-blackman.jpg}\hspace{4pt}
+  \includegraphics[width=0.32\textwidth]{fir-bandstop-d-equiripple.jpg}
+  \caption{FIR bandstop filters: hamming, blackman, equiripple}\label{fig:l1-fir-windows}
+\end{figure}
+
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{fvtool-hamm-blck.jpg}\hspace{4pt}
+  \includegraphics[width=0.48\textwidth]{fvtool-hamm-blck-2.jpg}
+  \caption{fvtool comparison: rectangular, hamming, blackman}\label{fig:l1-fvtool-hamm-blck}
+\end{figure}
+
 TODO
 
 \subsubsection{(e) Construct the FIR filter with the Equiripple method. Analyze the differences to the Window method.}
+
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{fvtool-equiripple.jpg}\hspace{4pt}
+  \includegraphics[width=0.48\textwidth]{pswav-equiripple.jpg}
+  \caption{fvtool comparison and filtered spectrum, equiripple method}\label{fig:l1-equiripple}
+\end{figure}
 
 TODO
 
@@ -42,13 +92,40 @@ TODO
   \tag{1}
 \end{equation}
 
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{custom-fir.jpg}\hspace{4pt}
+  \includegraphics[width=0.48\textwidth]{custom-fir-2.jpg}
+  \caption{custom FIR filter output spectrum and zoomed view}\label{fig:l1-custom-fir}
+\end{figure}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{custom-fir-output.jpg}
+  \caption{custom FIR filter output}\label{fig:l1-custom-fir-output}
+\end{figure}
+
 TODO
 
 \subsubsection{(g) Design with the fdatool an IIR filter which can be used instead of the FIR filter. Export the IIR filter as second-order-sections (SOS).}
 
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{iir-bandstop-butterworth.jpg}\hspace{4pt}
+  \includegraphics[width=0.48\textwidth]{custom-iir.jpg}
+  \caption{IIR butterworth filter designer and filtered spectrum}\label{fig:l1-iir-butter}
+\end{figure}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{custom-iir-output.jpg}
+  \caption{custom sosfilt output}\label{fig:l1-iir-output}
+\end{figure}
+
 TODO
 
 \subsubsection{(h) Implement your own filter function to be able to filter the audio file by using the second-order-sections. Compare the result to the sosfilt function of matlab.}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{ans-sosfilt.jpg}
+  \caption{max error between custom and matlab sosfilt}\label{fig:l1-ans-sosfilt}
+\end{figure}
 
 TODO
 
@@ -56,4 +133,11 @@ TODO
 
 \subsubsection{Implement your own Overlap-Add FIR-Filter function. Use also your own functions implemented in the winter semester. Compare it with the fftfilt function of matlab.}
 
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{hw-1.jpg}\hspace{4pt}
+  \includegraphics[width=0.48\textwidth]{hw-1-plot.jpg}
+  \caption{overlap-add output compared with conv and fftfilt}\label{fig:l1-hw1}
+\end{figure}
+
 TODO
+
