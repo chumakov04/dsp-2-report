@@ -12,7 +12,7 @@ $y_i = \sum_{n=0}^{N} b_n \cdot x_{i-n}$
   \caption{FIR filter principle}\label{fig:l1-firprinciple}
 \end{figure}
 
-Z-transform is laplace transform of discrete pulse consisting of weighted dirac pulses. Since past output values are not used for the calculation, transfer function $G(z)$ depends only on the coefficients $b_n$. $z^{-n}$ corresponds to shift of indices $i \to i-n$, equivalently shift/delay of $N$ clock cycles. $Y(z)$, $X(z)$, $G(z)$ are z-transformed output signal, input signal, and impulse system response correspondingly. NB: FIR filter of order N has exactly zeros, which occur several times and can lie outside of the unit circle.
+Z-transform is laplace transform of discrete pulse consisting of weighted dirac pulses. Since past output values are not used for the calculation, transfer function $G(z)$ depends only on the coefficients $b_n$. $z^{-n}$ corresponds to shift of indices $i \to i-n$, equivalently shift/delay of $N$ clock cycles. $Y(z)$, $X(z)$, $G(z)$ are z-transformed output signal, input signal, and impulse system response correspondingly. NB: FIR filter of order N has exactly zeros, which occur several times and can lie outside of the unit circle. Poles in FIR can be only at origin $z = 0$, equivalently in the center of unit circle.
 
 $Y(z) = X(z) \cdot G(z) \;\Longleftrightarrow\; G(z) = \frac{Y(z)}{X(z)} = b_0 + b_1 z^{-1} + b_2 z^{-2} + \cdots + b_N z^{-N}$. 
 
