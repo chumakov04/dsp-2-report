@@ -3,26 +3,66 @@
 
 $N$ order system requires $N$ past signal values for calculation of the current output value. For example, a second order system requires values up to 2 clock cycles back: $x_{i-1}$, $x_{i-2}$.
 
+Digital filters operate to half sampling frequency: $\omega = 0 \ldots \frac{\omega_s}{2}$. Amplitude response is periodic with period $\omega_s = \frac{2\pi}{T}$. Amplitude response $|G(j\omega)|$ in frequency domain is conjugate symmetric at $\frac{\omega_s}{2}$.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{dig1.jpg}
+  \caption{amplitude response in frequency domain}\label{fig:l1-dig1}
+\end{figure}
+
+Digital filter types are LP, HP, BP, BS, depending on a range or specific frequency to be attenuated or allowed to pass. Low pass allows frequencies below cutoff $\omega_c$, high pass allows above $\omega_c$, band pass allows between two cutoff frequencies $\omega_{c1}$ and $\omega_{c2}$, bandstop attenuates between $\omega_{c1}$ and $\omega_{c2}$.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{dig2.jpg}
+  \caption{digital filter types}\label{fig:l1-dig2}
+\end{figure}
+
 Finite impulse response filters operate only with past input values of the signal, with the impulse response duration corresponding to the filter order.
 
 $y_i = \sum_{n=0}^{N} b_n \cdot x_{i-n}$
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{firprinciple.jpg}
-  \caption{FIR filter principle}\label{fig:l1-firprinciple}
+  \caption{FIR filter logic}\label{fig:l1-firprinciple}
 \end{figure}
 
 Z-transform is laplace transform of discrete pulse consisting of weighted dirac pulses. Since past output values are not used for the calculation, transfer function $G(z)$ depends only on the coefficients $b_n$. $z^{-n}$ corresponds to shift of indices $i \to i-n$, equivalently shift/delay of $N$ clock cycles. $Y(z)$, $X(z)$, $G(z)$ are z-transformed output signal, input signal, and impulse system response correspondingly. NB: FIR filter of order N has exactly zeros, which occur several times and can lie outside of the unit circle. Poles in FIR can be only at origin $z = 0$, equivalently in the center of unit circle.
 
 $Y(z) = X(z) \cdot G(z) \;\Longleftrightarrow\; G(z) = \frac{Y(z)}{X(z)} = b_0 + b_1 z^{-1} + b_2 z^{-2} + \cdots + b_N z^{-N}$. 
 
-FIR filters have no feedback, therefore are always numerically stable. The output of the FIR filter is convolution of input values with filter coefficients $b_n$. If the filter order is increased, the steepness of a filter curve is increased, but not the damping effect, which is controlled with a window function. Since FIR is convolution in time domain, which corresponds to multiplication in frequency domain, desired frequency response of FIR filter is defined in frequency domain and transformed to the time domain to get filter coefficients. Window function multiplies ideal impulse response and truncates it to $N+1$ coefficients. Thus, even with high filter order $N$ ripples in passband and stopband remain, specifically with rectangular window function. For a smoother filtering hamming and blackman functions are used in this lab, with filter coefficients obtained by multiplying theoretically infinite coefficients by window function $b_n = w(t) \cdot b_{n,\infty}$.
+FIR filters have no feedback, therefore are always numerically stable. The output of the FIR filter is convolution of input values with filter coefficients $b_n$. If the filter order is increased, the steepness of a filter curve is increased, but not the damping effect, which is controlled with a window function. Since FIR is convolution in time domain, which corresponds to multiplication in frequency domain, desired frequency response of FIR filter is defined in frequency domain and transformed to the time domain to get filter coefficients. Window function multiplies ideal impulse response and truncates it to $N+1$ coefficients. Thus, even with high filter order $N$ ripples in passband and stopband remain, specifically with rectangular window function. For a smoother filtering hamming and blackman functions are used in this lab, with filter coefficients obtained by multiplying theoretically infinite coefficients by window function $b_n = w(t) \cdot b_{n,\infty}$. NB: steep transition of a FIR filter is possible only with very big order of FIR.
 
 Another important property of FIR filters is linear phase, meaning that the signal is shifted independent of frequency in time domain. For linear phase, the filter coefficients must be symmetric (odd number of filter coefficients).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{linearphase.png}
-  \caption{linear phase property of FIR filters}\label{fig:l1-linearphase}
+  \caption{linear phase property of FIR}\label{fig:l1-linearphase}
+\end{figure}
+
+Infinite impulse response filters cannot be exactly derived from frequency response, because they use past output values and thus never reach zero. Formally, current output value $y_i$ is dependent on previous output value $y_{i-1}$.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{IIRpict.jpg}
+  \caption{IIR filter logic}\label{fig:l1-iirprinciple}
+\end{figure}
+
+In IIR difference equation, $b_m$ are coefficients applied to input signal and $a_n$ are feedback coefficients aplied to past output values, feedback loop. Half of variables to be stored for calculation of IIR filter (shown with following formulas).
+
+\begin{equation}
+  y_i = \sum_{m=0}^{M-1} b_m \cdot x_{i-m} - \sum_{n=1}^{N-1} a_n \cdot y_{i-n} \;\Longrightarrow\; X(z) \cdot \sum_{m=0}^{M-1} b_m \cdot z^{-m} = Y(z) \cdot \sum_{n=0}^{N-1} a_n \cdot z^{-n}
+\end{equation}
+
+\begin{equation}
+  G(z) = \frac{Y(z)}{X(z)} = \frac{\sum_{m=0}^{M-1} b_m \cdot z^{-m}}{\sum_{n=0}^{N-1} a_n \cdot z^{-n}} = \frac{\frac{1}{a_0} \sum_{m=0}^{M-1} b_m \cdot z^{-m}}{\frac{1}{a_0} \sum_{n=0}^{N-1} a_n \cdot z^{-n}} = \frac{\sum_{m=0}^{M-1} b_m \cdot z^{-m}}{1 + \sum_{n=1}^{N-1} a_n \cdot z^{-n}} = G(z)
+\end{equation}
+
+IIR filter can be built with a verly low order to create steep filter curve transition and high attenuation, which is more efficient than FIR filter. However, because of feedback introduced, IIR filters are not always stable. Poles can be located at any position, for stability must be within unit circle. 
+
+Quantization errors occurs in digital filters because filter coefficients $a_n$ and $b_n$ can only be stored with limited accuracy, depending on the data type used. With FIR filters this is not critical, since all poles are at the origin and the system cannot become unstable. Thus, quantization effects of feedback filter coefficients $a_n$ can lead to deviations and possibly instability of IIR filter; if pole is placed outside of unit circle trivially system is unstable by definition. Solution is to divide higher order system into several lower order = second order sections (SOS) that are connected in series. Total effect of quantization errors of all filter coefficients on all poles can be prevented, since filter coefficients of $2nd$ order subsystems allow one pole pair to be placed independently of other pairs. Transfer function is product of all subsystems $G'(z) = G_1(z) \cdot G_2(z) \cdot G_3(z)$.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{SOSexample.png}
+  \caption{arbitrary example of higher order system into SOS decomposition}\label{fig:l1-sosexample}
 \end{figure}
 
 \subsection{Laboratory 1 -- The task is to compare FIR Filters with different windows and to implement an own IIR filter function.}
