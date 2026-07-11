@@ -7,14 +7,14 @@ Digital filters operate to half sampling frequency: $\omega = 0 \ldots \frac{\om
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_1.jpg}
-  \caption{amplitude response in frequency domain}\label{fig:l1-dig1}
+  \caption{amplitude response in frequency domain}\label{fig:1}
 \end{figure}
 
 Digital filter types are LP, HP, BP, BS, depending on a range or specific frequency to be attenuated or allowed to pass. Low pass allows frequencies below cutoff $\omega_c$, high pass allows above $\omega_c$, bandpass allows between two cutoff frequencies $\omega_{c1}$ and $\omega_{c2}$, bandstop attenuates between $\omega_{c1}$ and $\omega_{c2}$.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_2.jpg}
-  \caption{digital filter types}\label{fig:l1-dig2}
+  \caption{digital filter types}\label{fig:2}
 \end{figure}
 
 Finite impulse response filters operate only with past input values of the signal, with the impulse response duration corresponding to the filter order.
@@ -23,7 +23,7 @@ $y_i = \sum_{n=0}^{N} b_n \cdot x_{i-n}$
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_3.jpg}
-  \caption{FIR filter logic}\label{fig:l1-firprinciple}
+  \caption{FIR filter logic}\label{fig:3}
 \end{figure}
 
 Z-transform is laplace transform of discrete pulse consisting of weighted dirac pulses. Since past output values are not used for the calculation, transfer function $G(z)$ depends only on the coefficients $b_n$. $z^{-n}$ corresponds to shift of indices $i \to i-n$, equivalently shift/delay of $N$ clock cycles. $Y(z)$, $X(z)$, $G(z)$ are z-transformed output signal, input signal, and impulse system response correspondingly. NB: FIR filter of order N has exactly zeros, which occur several times and can lie outside of the unit circle. Poles in FIR can be only at origin $z = 0$, equivalently in the center of unit circle.
@@ -36,14 +36,14 @@ Another important property of FIR filters is linear phase, meaning that the sign
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_4.png}
-  \caption{linear phase property of FIR}\label{fig:l1-linearphase}
+  \caption{linear phase property of FIR}\label{fig:4}
 \end{figure}
 
 Infinite impulse response filters cannot be exactly derived from frequency response, because they use past output values and thus never reach zero. Formally, current output value $y_i$ is dependent on previous output value $y_{i-1}$.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_5.jpg}
-  \caption{IIR filter logic}\label{fig:l1-iirprinciple}
+  \caption{IIR filter logic}\label{fig:5}
 \end{figure}
 
 In IIR difference equation, $b_m$ are coefficients applied to input signal and $a_n$ are feedback coefficients aplied to past output values, feedback loop. Half of variables to be stored for calculation of IIR filter (shown with following formulas).
@@ -63,7 +63,7 @@ Quantization errors occurs in digital filters because filter coefficients $a_n$ 
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_6.png}
-  \caption{arbitrary example of higher order system into SOS decomposition}\label{fig:l1-sosexample}
+  \caption{arbitrary example of higher order system into SOS decomposition}\label{fig:6}
 \end{figure}
 
 \subsection{Laboratory 1 -- The task is to compare FIR Filters with different windows and to implement an own IIR filter function.}
@@ -78,7 +78,7 @@ ps.wav has sampling frequency $f_s$ = 22050 Hz. To analyze noise signal presence
   \includegraphics[width=0.32\textwidth]{image_7.jpg}\hspace{4pt}
   \includegraphics[width=0.32\textwidth]{image_8.jpg}\hspace{4pt}
   \includegraphics[width=0.32\textwidth]{image_9.jpg}
-  \caption{ps.wav time domain, frequency spectrum, zoomed frequency spectrum}\label{fig:l1-pswav}
+  \caption{ps.wav time domain, frequency spectrum, zoomed frequency spectrum}\label{fig:7}
 \end{figure}
 
 Time domain is noisy signal, not much information can be gained from time domain plot. Based on the frequency domain, noise signal is unusual spike at 999-1001 Hz with amplitude of 11029. Since there is specific frequency range to be removed, bandstop FIR filter is required.
@@ -103,7 +103,7 @@ plot(fAxis, magnitude);
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_10.jpg}
-  \caption{FIR bandstop filter, rectangular window}\label{fig:l1-fir-rect}
+  \caption{FIR bandstop filter, rectangular window}\label{fig:8}
 \end{figure}
 
 FIR bandstop filter designed in fdatool with rectangular window, order $N$ = 230 and stopband range between 950 and 1050 Hz chosen arbitrary to be not too narrow, and also not too wide. High order is needed because with narrow frequency range to be filtered, low order like 10 results in highpass filter instead of bandstop. As discussed in theoretical part, rectangular windows leads to ripple in sideband regardless of filter order.
@@ -115,7 +115,7 @@ FIR bandstop with rectangular window achieves about -20 $dB$ stopband attenuatio
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_11.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_12.jpg}
-  \caption{frequency spectrum after FIR bandstop filtering}\label{fig:l1-pswav-filt}
+  \caption{frequency spectrum after FIR bandstop filtering}\label{fig:9}
 \end{figure}
 
 Filtered with filter(b = Num, a = 1, x). 1 means no feedback coefficients with $a_0 = 1$, equivalently denominator of transfer function is 1. Frequency spectrum shows spike at around 1000 Hz reduced from magnitude 11000 to 1100. As expected with rectangular window, small leakage is visible around bandstop frequency range due to sidelobes introduced by rectangular window function.
@@ -138,13 +138,13 @@ magntiude_Y = abs(Y);
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_13.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_14.jpg}
-  \caption{FIR bandstop with hamming, blackman}\label{fig:l1-fir-windows}
+  \caption{FIR bandstop with hamming, blackman}\label{fig:10}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_15.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_16.jpg}
-  \caption{fvtool compare rectangular, hamming, blackman}\label{fig:l1-fvtool-hamm-blck}
+  \caption{fvtool compare rectangular, hamming, blackman}\label{fig:11}
 \end{figure}
 
 Rectangular reaches around -20 $dB$ at stopband due to its narrow main lobe, but has sidelobe ripples in passband. Hamming and blackman have passband mostly without any ripples, but their wider main lobe, as expected, fails to create sharp notch for atennuation. Hamming reaches only -7.2 $dB$ and blackman -5.2 $dB$. 
@@ -164,7 +164,7 @@ Equiripple is not a window method. Equiripple filter designs minimize the maximu
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_17.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_18.jpg}
-  \caption{fvtool comparison and filtered spectrum, equiripple method}\label{fig:l1-equiripple}
+  \caption{fvtool comparison and filtered spectrum, equiripple method}\label{fig:12}
 \end{figure}
 
 Equiripple mehtod gives much higher -60 $dB$ stopband attenuation and much narrower filter curve, compared to only -20 $dB$ stopband attenuation with rectangular, without ripple or leakage in sidelobs. 
@@ -221,7 +221,7 @@ y_2 = customFilter(Num, [], x);
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_19.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_20.jpg}
-  \caption{custom FIR filter output spectrum}\label{fig:l1-custom-fir}
+  \caption{custom FIR filter output spectrum}\label{fig:13}
 \end{figure}
 
 Output frequency spectrum of custom filtered signal is identical to Matlab filter function output. Noise spike at around 1000 Hz with amplitude reduced from 11029 to 1100.
@@ -231,12 +231,12 @@ Output frequency spectrum of custom filtered signal is identical to Matlab filte
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_21.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_22.jpg}
-  \caption{IIR butterworth filter designer and filtered spectrum}\label{fig:l1-iir-butter}
+  \caption{IIR butterworth filter designer and filtered spectrum}\label{fig:14}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_23.jpg}
-  \caption{custom sosfilt output}\label{fig:l1-iir-output}
+  \caption{custom sosfilt output}\label{fig:15}
 \end{figure}
 
 \codeused
@@ -278,7 +278,7 @@ max(abs(y_sos_matlab - y_sos_custom))
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_24.jpg}
-  \caption{max error between custom and matlab sosfilt}\label{fig:l1-ans-sosfilt}
+  \caption{max error between custom and matlab sosfilt}\label{fig:16}
 \end{figure}
 
 TODO
@@ -290,7 +290,7 @@ TODO
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_25.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_26.jpg}
-  \caption{overlap-add output compared with conv and fftfilt}\label{fig:l1-hw1}
+  \caption{overlap-add output compared with conv and fftfilt}\label{fig:17}
 \end{figure}
 
 TODO
