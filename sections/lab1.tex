@@ -10,7 +10,7 @@ Digital filters operate to half sampling frequency: $\omega = 0 \ldots \frac{\om
   \caption{amplitude response in frequency domain}\label{fig:l1-dig1}
 \end{figure}
 
-Digital filter types are LP, HP, BP, BS, depending on a range or specific frequency to be attenuated or allowed to pass. Low pass allows frequencies below cutoff $\omega_c$, high pass allows above $\omega_c$, band pass allows between two cutoff frequencies $\omega_{c1}$ and $\omega_{c2}$, bandstop attenuates between $\omega_{c1}$ and $\omega_{c2}$.
+Digital filter types are LP, HP, BP, BS, depending on a range or specific frequency to be attenuated or allowed to pass. Low pass allows frequencies below cutoff $\omega_c$, high pass allows above $\omega_c$, bandpass allows between two cutoff frequencies $\omega_{c1}$ and $\omega_{c2}$, bandstop attenuates between $\omega_{c1}$ and $\omega_{c2}$.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{dig2.jpg}
@@ -80,7 +80,23 @@ ps.wav has sampling frequency $f_s$ = 22050 Hz. To analyze noise signal presence
   \caption{ps.wav time domain, frequency spectrum, zoomed frequency spectrum}\label{fig:l1-pswav}
 \end{figure}
 
-Time domain is noisy signal, not much information can be gained from time domain plot. Based on the frequency domain, noise signal is unusual spike at 999-1001 Hz with amplitude of 11029. Since there is specific frequency range to be removed, band stop FIR filter is required.
+Time domain is noisy signal, not much information can be gained from time domain plot. Based on the frequency domain, noise signal is unusual spike at 999-1001 Hz with amplitude of 11029. Since there is specific frequency range to be removed, bandstop FIR filter is required.
+
+\codeused
+\begin{matlab}
+[x, fs] = audioread("ps.wav");
+t = (0:length(x) - 1) / fs;
+plot(t, x)
+
+% frequency spectrum
+X = fft(x);
+magnitude = abs(X);
+N = length(X);
+fAxis = (0:N-1) * fs / N;
+plot(fAxis, magnitude);
+
+% noise signal (spike) at 999 to 1001Hz
+\end{matlab}
 
 \subsubsection{(b) Experiment with the fdatool (rectangle window) and create a FIR filter that is able to remove the interference from the audio file.}
 
@@ -89,11 +105,11 @@ Time domain is noisy signal, not much information can be gained from time domain
   \caption{FIR bandstop filter, rectangular window}\label{fig:l1-fir-rect}
 \end{figure}
 
-FIR bandstop filter designed in fdatool with rectangular window, order $N$ = 230 and stopband range between 950 and 1050 Hz chosen arbitrary (not too narrow, not too wide range). High order is needed because with narrow frequency range to be filtered, low order like 10 results in highpass filter instead of bandstop. As discussed in theoretical part, rectangular windows leads to ripple in side band regardless of filter order, achieving only -20 $dB$ attenuation at stop band.
+FIR bandstop filter designed in fdatool with rectangular window, order $N$ = 230 and stopband range between 950 and 1050 Hz chosen arbitrary to be not too narrow, and also not too wide. High order is needed because with narrow frequency range to be filtered, low order like 10 results in highpass filter instead of bandstop. As discussed in theoretical part, rectangular windows leads to ripple in sideband regardless of filter order.
+
+FIR bandstop with rectangular window achieves about -20 $dB$ stopband attenuation. Exported as Num variable.
 
 \subsubsection{(c) Export the filter using the File/Export menu and filter the audio file. Analyze the result visually in the frequency spectrum as well as aural.}
-
-Exported as Num variable.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{pswav-filt.jpg}\hspace{4pt}
@@ -101,11 +117,22 @@ Exported as Num variable.
   \caption{frequency spectrum after FIR bandstop filtering}\label{fig:l1-pswav-filt}
 \end{figure}
 
-After filtering with filter(b = Num, a = 1, x), where 1 means no feedback coefficients with $a = 1$ (denominator of transfer function is 1), frequency spectrum shows spike at around 1000 Hz reduced from magnitude 11000 to 1100. As expected with rectangular window, small leakage occurred around bandstop frequency range due to sidelobes introduced by rectangular window function.
+Filtered with filter(b = Num, a = 1, x). 1 means no feedback coefficients with $a_0 = 1$, equivalently denominator of transfer function is 1. Frequency spectrum shows spike at around 1000 Hz reduced from magnitude 11000 to 1100. As expected with rectangular window, small leakage is visible around bandstop frequency range due to sidelobes introduced by rectangular window function.
+
+\codeused
+\begin{matlab}
+y_filtered = filter(Num, 1, x);
+sound(y_filtered, fs);
+Y = fft(y_filtered);
+magntiude_Y = abs(Y);
+% frequency spectrum now has reduced magnitude of spike at 1000Hz from
+% 11000 in magnitude to 1100
+% as expected, small leakage occured around bandstop frequency range
+\end{matlab}
 
 \subsubsection{(d) Use different windows for designing the FIR filter and compare the results and explain the advantages and disadvantages. Compare the different filters with the fvtool or with the freqz function}
 
-2 other window types hamming, blackman use order $N$ = 250 (not exactly the same as rectangular, but this is what I did during the lab, should not impact results significantly). 
+2 other window types hamming, blackman use order $N$ = 250, roughly the same but trying with a bit higher oder, since wider main lobes of hamming and blackman windows can fail to create sharp notch with same order.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{fir-bandstop-d-hamming.jpg}\hspace{4pt}
@@ -119,11 +146,19 @@ After filtering with filter(b = Num, a = 1, x), where 1 means no feedback coeffi
   \caption{fvtool compare rectangular, hamming, blackman}\label{fig:l1-fvtool-hamm-blck}
 \end{figure}
 
-2 other window types hamming, blackman use order $N$ = 250 using filter design tool. Rectangular reaches around -20 $dB$ at stop band due to its steep filter curve transition, but has sidelobe ripples in pass band. Hamming and blackman have smooth pass band without ripples, but their wider main lobe smooths out narrow notch, reaching only -7.2 $dB$ and -5.2 $dB$ attenuation. So for such narrow stopband, windows with stronger sidelobe suppression actually seem to attenuate less at same order.
+Rectangular reaches around -20 $dB$ at stopband due to its narrow main lobe, but has sidelobe ripples in passband. Hamming and blackman have passband mostly without any ripples, but their wider main lobe, as expected, fails to create sharp notch for atennuation. Hamming reaches only -7.2 $dB$ and blackman -5.2 $dB$. 
+
+So for such narrow stopband, windows with stronger sidelobe suppression actually seem to attenuate less at same order. To achieve higher stopband attenuation, may require either wider frequency range, or significantly hihger filter order, for example $N$ = 1000 not desired computationally.
+
+\codeused
+\begin{matlab}
+% for d compare Num with rect, hamming, blackman windows
+fvtool(Num, 1, Num_hamming, 1, Num_blackman, 1);
+\end{matlab}
 
 \subsubsection{(e) Construct the FIR filter with the Equiripple method. Analyze the differences to the Window method.}
 
-Equiripple is not a window method, filter instead distributes ripple equally across pass band and stop band.
+Equiripple is not a window method. Equiripple filter designs minimize the maximum ripple in the passbands and stopbands.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{fvtool-equiripple.jpg}\hspace{4pt}
@@ -131,9 +166,24 @@ Equiripple is not a window method, filter instead distributes ripple equally acr
   \caption{fvtool comparison and filtered spectrum, equiripple method}\label{fig:l1-equiripple}
 \end{figure}
 
-fvtool shows that equiripple recahes more than $-60$ dB attenuation at stop band while keeping narrow transition, compared to only $-20$ dB with rectangular. Pass band has smaller than original sidelobs equally distributed ripples around notch. Frequency spectrum of filtered signal trasnformed with FFT confirms that spike at around 1000 Hz is completely removed, which is best result comapred to all 3 window functions applied (rectangular which had highest stopband attenuation reached only -20 $dB$)
+Equiripple gives much higher dB attenuation, more than -60 $dB$ attenuation at stopband, and much narrower transition, compared to only -20 $dB$ with rectangular, without so much ripple or leakage in sidelobs. Passband has smaller than original sidelobs equally distributed ripples around notch. Frequency spectrum of filtered signal has spike at around 1000 Hz completely removed, which is best result so far.
+
+\codeused
+\begin{matlab}
+% for e use equiripple instead window for filter construction
+% also compare with fvtool; compare with rect window
+fvtool(Num, 1, Num_equiripple, 1);
+% frequency spectrum of FIR filtered signal with the Equiripple method
+y_filtered_equiripple = filter(Num_equiripple, 1, x);
+Y_equiripple = fft(y_filtered_equiripple);
+magntiude_Y_equiripple = abs(Y_equiripple);
+\end{matlab}
 
 \subsubsection{(f) Implement your own FIR and IIR filtering function for vector-signals.}
+
+custom function implements given formula with 3 nested loops. outer loop over output signal, must be same length. 2 inner loops for FIR and IIR. 
+
+Index condition (n - k) >= 1 is needed, because lowest index in Matlab is x(1), so terms reaching before signal start are skipped. IIR loop starts at k = 2, because a(1) corresponds to $a_0 = 1$ with feedback sum starting from $a_1$, shown in theory above for this lab with equation (2).
 
 % formula given on the exercise sheet:
 \begin{equation}
@@ -141,18 +191,41 @@ fvtool shows that equiripple recahes more than $-60$ dB attenuation at stop band
   \tag{1}
 \end{equation}
 
+\codeused
+\begin{matlab}
+function y = customFilter(b, a, x)
+    length_b = length(b);
+    length_a = length(a);
+    N = length(x);
+    % initialize filtered output signal
+    y = zeros(N, 1);
+    for n = 1:N
+        % fir b_k * x[n - k]
+        for k = 1:length_b
+            % x[1] is lowest index because of Matlab indexing
+            if (n - k) >= 1
+                y(n) = y(n) + b(k) * x(n - k);
+            end
+        end
+        % iir a_k * y[n - k]
+        for k = 2:length_a
+            if (n - k + 1) >= 1
+                y(n) = y(n) - a(k) * y(n - k + 1);
+            end
+        end
+    end
+end
+% no iir component
+y_2 = customFilter(Num, [], x);
+\end{matlab}
+
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{custom-fir.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{custom-fir-2.jpg}
   \caption{custom FIR filter output spectrum}\label{fig:l1-custom-fir}
 \end{figure}
 
-\begin{figure}[H]
-  \includegraphics[width=0.6\textwidth]{custom-fir-output.jpg}
-  \caption{custom FIR filter output}\label{fig:l1-custom-fir-output}
-\end{figure}
-
-TODO
+Output frequency spectrum of custome filtered signal is identical to Matlab filter function, spike at around 1000 Hz with amplitude reduced from 11029 to 1100.
 
 \subsubsection{(g) Design with the fdatool an IIR filter which can be used instead of the FIR filter. Export the IIR filter as second-order-sections (SOS).}
 
@@ -167,9 +240,42 @@ TODO
   \caption{custom sosfilt output}\label{fig:l1-iir-output}
 \end{figure}
 
+\codeused
+\begin{matlab}
+% for g designed iir butterworth filter
+% saved as SOS (second-order-sections) for SOS matrix, and G for scale values
+y_iir = sosfilt(SOS, x);
+sound(y_iir, fs);
+% now 26 coefficients instead of huge number with fir, while maintaining
+% huge dB attenuation
+\end{matlab}
+
 TODO
 
 \subsubsection{(h) Implement your own filter function to be able to filter the audio file by using the second-order-sections. Compare the result to the sosfilt function of matlab.}
+
+\codeused
+\begin{matlab}
+y_sos_matlab = sosfilt(SOS, x);
+
+function y = customSosfilt(SOS, G, x)
+    % size of SOS is 13 * 6
+    [rows, columns] = size(SOS);
+    % rows or SECTIONS!, so 13 sections
+    y = x;
+    for i = 1:rows
+        % [b0 b1 b2]
+        b = SOS(i, 1:3);
+        % [1 a1 a2]
+        a = SOS(i, 4:6);
+        y = customFilter(b, a, y);
+    end
+    % gain facotr/scale values
+    y = prod(G) * y;
+end
+y_sos_custom = customSosfilt(SOS, G, x);
+max(abs(y_sos_matlab - y_sos_custom))
+\end{matlab}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{ans-sosfilt.jpg}
