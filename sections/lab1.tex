@@ -234,13 +234,14 @@ Output frequency spectrum of custom filtered signal is identical to Matlab filte
 
 \subsubsection{(g) Design with the fdatool an IIR filter which can be used instead of the FIR filter. Export the IIR filter as second-order-sections (SOS).}
 
+As already mentioned in the theoretical introduction, IIR filter allows for significanly stepper filter response with high stopband attenuation to be achoeved with low order $N$, euivalently small number of input and feedback coefficients. The frequency response of the Butterworth design method for IIR filter is maximally flat with no ripples in the passband and rolls off towards zero in the stopband \footnote{\url{https://en.wikipedia.org/wiki/Butterworth_filter}}. Poles of Butterworth filter are located in left half plane of unit circle.
+
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_77.png}
-  \caption{IIR butterworth basic idea}\label{fig:14}
+  \caption{IIR butterworth poles}\label{fig:14}
 \end{figure}
 
-
-As already mentioned in the theoretical introduction, butterworth filter which is IIR allows for significanly stepper filter response including high stopband attenuation to be achoeved with low order $N$, euivalently small number of input and feedback coefficients. The frequency response of the Butterworth filter is maximally flat with no ripples in the passband and rolls off towards zero in the stopband \footnote{\url{https://en.wikipedia.org/wiki/Butterworth_filter}}.
+Another design methods for IIR filters are Chebyshev type 1 and type 2. For this lab Butterworth is used because it is more simple with  flat passband, while Chebyshev allows ripple, even though allowing even lower order for same transition as Butterworth\footnote{\url{https://www.mathworks.com/discovery/notch-filter.html}}.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_21.jpg}\hspace{4pt}

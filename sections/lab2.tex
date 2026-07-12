@@ -5,17 +5,24 @@
 \clearpage
 \section{Lab exercise 2: Notch and Comb Filter Design}
 
-TODO: chapter introduction -- theory about notch and comb filters.
+Notch filters are used to filter out specific frequency inference with only one specific frequency like 50 or 60 Hz or . Amplitude response has very narrow notch at frequency range to be blocked with other frequencies pass through unchanged. 
+
+Created with second order IIR filter designed directly from pole zero plot so that conjugate complex zero is located at that specific frequency $\omega_{0}$. Since zeros are exactly on the unit circle filter gain at $\omega_{0}$ is zero. For all other frequencies along unit circle distance from zeros and poles is roughly equal so gain is roughly 1. Conjugate complex poles are placed at the same angle but inside the unit circle at distance $r$ from origin with pole radius $r$ controlling steepness and width of the notch. Notch becomes more steep and narrow as r approaches 1. For stability, $r < 1$ must hold.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_78.png}
+  \caption{notch filter pole zero design basic idea}\label{fig:20}
+\end{figure}
 
 \subsection{Laboratory 2 -- Design a Notch filter using the Pol-Zero diagram for a stop frequency fs=1000Hz and a sample rate fa=10000Hz. Use as the pole radius r=0.98.}
+
+In transfer function (\ref{eq:notch-tf}) numerator zeros $e^{\pm j\omega_0}$ are on the unit circle and create gain zero at $\omega_0$. Denominator poles $r * e^{\pm j\omega_0}$ are inside the unit circle at radius $r$. Transfer function can be further simplified to form with cosine of angular frequency $\omega_0$ that is used in function for notch filter.
 
 \subsubsection{(a) Write a function to design a Notch filter with the following input parameters:}
 
 % given on the exercise sheet:
 \begin{itemize}
-  \item stop frequency fs
-  \item pole radius r
-  \item sampling rate fa
+  \item stop frequency fs; pole radius r; sampling rate fa
 \end{itemize}
 With
 \begin{equation}
@@ -23,7 +30,7 @@ With
               {(z - re^{j\omega_0})(z - re^{-j\omega_0})}
        = \frac{z^2 - 2z\cos(\omega_0) + 1}
               {z^2 - 2zr\cos(\omega_0) + r^2}
-  \tag{1}
+  \label{eq:notch-tf}\tag{1}
 \end{equation}
 and
 \begin{equation}
@@ -34,59 +41,171 @@ and
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_27.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_28.jpg}
-  \caption{notch filter frequency response and pole-zero map}\label{fig:20}
+  \caption{notch filter frequency response and pole-zero map}\label{fig:21}
 \end{figure}
 
-TODO
+notchFilter function computes normalized angular frequency $\omega_0 = 2\pi \cdot f_s / f_a$ and returns numerator coefficients $b$ applied to input and denominator coefficients $a$ from feedback. 
+
+For $f_s = 1000$ Hz, $f_a = 10000$ Hz, $r = 0.98$ output is:
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_79.png}
+  \caption{notch filter coefficients output}\label{fig:22}
+\end{figure}
+
+Magnitude of filter shows very narrow steep notch at 1 kHz attenuating -30.18 $dB$. Pole zero plot shows zero at $\omega_0$ frequency with pole located almost where zero is with $r = 0.98$, with conjufate complex pair.
+
+$freqz(b,a,n,fs)$ with no output arguments plots the frequency response of the filter at $n$ sample points for sample rate $f_s$ \footnote{\url{https://www.mathworks.com/help/signal/ref/freqz.html\#bt8l4c4\_sep\_shared-ba}}.
+
+\codeused
+\begin{matlab}
+fs = 1000; fa = 10000; r = 0.98;
+function [b, a] = notchFilter(fs, fa, r)
+    % normalized angular frequency
+    w0 = 2 * pi * fs / fa;
+    % b numerator coefficient applied to input
+    b = [1, -2 * cos(w0), 1];
+    % a denominator coefficient comes from feedback
+    a = [1, -2 * r * cos(w0), r^2];
+end
+[b, a] = notchFilter(fs, fa, r);
+resolution = 1024; 
+freqz(b, a, resolution, fa); zplane(b, a);
+\end{matlab}
 
 \subsubsection{(b) Use your Notch filter function to analyse on the one hand same stop frequencies with different sample rates and on the other hand different stop frequencies with the same sample rate with the amplitude and phase response as well with the pol-zero-map.}
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_29.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_30.jpg}
-  \caption{same stop frequency, different sample rates}\label{fig:21}
+  \caption{same stop frequency, different sample rates}\label{fig:23}
 \end{figure}
+
+Used notch function to analyse magnitude, phase, pole zero plot with same stop frequency $f_s = 1000$ Hz and sample rates $f_a = 10000$, $22050$, $44100$ Hz. Higher sampling rate produces a bit wider notch in magnitude spectrum, while attenuation reaches -34 $dB$ with higher sampling rates. In pole zero plot poles and zeros together with their conjugate complex pair get closer to Re axis as $f_a$ increases. At notch frequency phase spike happens between -89 and +89 degrees because zeros on unit circle cause sign change in transfer function H(z). 
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_31.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_32.jpg}
-  \caption{same sample rate, different stop frequencies}\label{fig:22}
+  \caption{same sample rate, different stop frequencies}\label{fig:24}
 \end{figure}
 
-TODO
+Different stop frequencies $f_s = 500$, $1000$, $2000$ Hz with same sample rate $f_a = 10000$ Hz. Notch and phase shift moves to corresponding stop frequency. In pole zero plot zeros and poles get further from Re axis on unit circle as $f_s$ increases.
+
+\codeused
+\begin{matlab}
+% same stop frequency, different sample rates
+[b1, a1] = notchFilter(1000, 10000, 0.98);
+[b2, a2] = notchFilter(1000, 22050, 0.98);
+[b3, a3] = notchFilter(1000, 44100, 0.98);
+freqz(b1, a1, resolution, 10000); hold on;
+freqz(b2, a2, resolution, 22050); hold on;
+freqz(b3, a3, resolution, 44100);
+
+% different stop frequencies, same sample rate
+[b4, a4] = notchFilter(500, 10000, 0.98);
+[b5, a5] = notchFilter(1000, 10000, 0.98);
+[b6, a6] = notchFilter(2000, 10000, 0.98);
+freqz(b4, a4, resolution, 10000); hold on;
+freqz(b5, a5, resolution, 10000); hold on;
+freqz(b6, a6, resolution, 10000);
+\end{matlab}
 
 \subsubsection{(c) Analyse with your Notch filter function also the influence of the pole radius r on the characteristics of the filter with the amplitude and phase response as well plot the pole-zero maps.}
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_33.jpg}\hspace{4pt}
-  \includegraphics[width=0.48\textwidth]{image_34.jpg}
-  \caption{influence of pole radius r on notch filter}\label{fig:23}
+  \includegraphics[width=0.48\textwidth]{image_80.png}
+  \caption{influence of r on magnitude and phase}\label{fig:25}
 \end{figure}
 
-TODO
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_34.jpg}
+  \caption{pole zero plot for different r}\label{fig:26}
+\end{figure}
+
+Tested $r$ = 0.5, 0.8, 0.9, 1.0. Higher $r$ creates more narrow and steep notch. In pole zero plot poles move closer to unit circle as $r$ increases, expected from theoretical introduction. At $r = 1$ poles sit exactly on zeros so they cancel and $H(z) = 1$ everywhere, no filtering effect produced. Phase plot with $r = 1$ is flat at 0 degrees because numerator and denominator are identical.
+
+\codeused
+\begin{matlab}
+[b7, a7] = notchFilter(1000, 10000, 0.5);
+[b8, a8] = notchFilter(1000, 10000, 0.8);
+[b9, a9] = notchFilter(1000, 10000, 0.9);
+[b10, a10] = notchFilter(1000, 10000, 1.0);
+freqz(b7, a7, resolution, 10000); hold on;
+freqz(b8, a8, resolution, 10000); hold on;
+freqz(b9, a9, resolution, 10000); hold on;
+freqz(b10, a10, resolution, 10000);
+\end{matlab}
 
 \subsubsection{(d) Correct the gain factor for your notch filter function.}
 
-TODO
+Without correction passband gain is only largely constant but not exactly 1. Gain correction scales $b$ coefficients so that $H(z = 1) = 1$. Factor $b_0 = |{\sum a}| / |{\sum b}|$ is ratio of denominator to numerator evaluated at $z = 1$ which is DC component at 0 Hz.
+
+\codeused
+\begin{matlab}
+function [b, a] = notchFilterGC(fs, fa, r)
+    w0 = 2 * pi * fs / fa;
+    b = [1, -2 * cos(w0), 1];
+    a = [1, -2 * r * cos(w0), r^2];
+    % make H(z = 1) = 1
+    b0 = abs(sum(a)) / abs(sum(b));
+    b = b0 * b;
+end
+\end{matlab}
 
 \subsection{Laboratory 2 -- Design a Comb filter out of a Butterworth low-pass filter with 3 repetitions}
+
+Comb filters are used to remove interference with harmonics at multiples of fundamental frequency that can be achieved by using notch filter as comb filter.
+
+Constructed by inserting zeros between original filter coefficients which increases sampling frequency while keeping the original filter shape unchanged. Each inserted zero extends frequency range by original $\omega_s/2$, so inserting $n$ zeros produces ($n+1$) copies of filter shape. Thus, inserting $n$ zeros replaces $z^{-1}$ with $z^{-(n+1)}$ in the transfer function. 
+
+\begin{equation}
+  G(z) = b_0 + b_1 z^{-1} + b_2 z^{-2}
+  \;\;\Rightarrow\;\;
+  G(z) = b_0 + b_1 z^{-(n+1)} + b_2 z^{-2(n+1)}
+  \tag{3}
+\end{equation}
+
+Sampling frequency stays the same but original notch filter shape gets compressed and repeated $n+1$ times between 0 and $\omega_s/2$.
+
+For IIR comb filter zeros must be inserted between both $b_n$ and $a_n$ coefficients.
+
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{image_81.png}\hspace{4pt}
+  \includegraphics[width=0.48\textwidth]{image_82.png}
+  \caption{comb filter zero insertion principle based on lowpass example}\label{fig:27}
+\end{figure}
 
 \subsubsection{(a) Write a Comb filter function which can design a Comb filter by taking the following parameters:}
 
 % given on the exercise sheet:
 \begin{itemize}
-  \item filter coefficients b
-  \item filter coefficients a
-  \item repetitions n
+  \item filter coefficients b; filter coefficients a; repetitions n
 \end{itemize}
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_35.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_36.jpg}
-  \caption{basic comb filter frequency response and pole-zero map}\label{fig:24}
+  \caption{basic comb filter frequency response and pole-zero map}\label{fig:28}
 \end{figure}
 
 TODO
+
+\codeused
+\begin{matlab}
+% basic comb filter with zeros on unit circle
+r = 0.9999995; Lf = 9;
+b = [1 zeros(1, Lf - 1) -r^Lf]; a = 1;
+freqz(b, a); pzmap(tf(b, a));
+
+function [b_comb, a_comb] = combFilter(b, a, n)
+    b_comb = zeros(1, (length(b) - 1) * n + 1);
+    a_comb = zeros(1, (length(a) - 1) * n + 1);
+    % original coefficients every n th position
+    b_comb(1:n:end) = b;
+    a_comb(1:n:end) = a;
+end
+\end{matlab}
 
 \subsubsection{(b) Use your Comb filter function and analyse it with the amplitude and phase response of the filter.}
 
@@ -94,10 +213,19 @@ TODO
   \includegraphics[width=0.32\textwidth]{image_37.jpg}\hspace{4pt}
   \includegraphics[width=0.32\textwidth]{image_38.jpg}\hspace{4pt}
   \includegraphics[width=0.32\textwidth]{image_39.jpg}
-  \caption{butterworth lowpass, comb filter with n=3, and pole-zero map}\label{fig:25}
+  \caption{butterworth lowpass, comb filter with n=3, and pole-zero map}\label{fig:29}
 \end{figure}
 
 TODO
+
+\codeused
+\begin{matlab}
+[b_lp, a_lp] = butter(4, 0.2);
+% comb with 3 repetitions
+[b_comb, a_comb] = combFilter(b_lp, a_lp, 3);
+freqz(b_lp, a_lp, 1024); freqz(b_comb, a_comb, 1024);
+zplane(b_comb, a_comb);
+\end{matlab}
 
 \subsection{Homework 2 (Implement your own Notch-Comb filter function)}
 
@@ -105,21 +233,19 @@ TODO
 
 % given on the exercise sheet:
 \begin{itemize}
-  \item sample rate fa
-  \item repetitions n
-  \item pole radius r
+  \item sample rate fa; repetitions n; pole radius r
 \end{itemize}
 Show the results with appropriate diagrams
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_40.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_41.jpg}
-  \caption{notch-comb filter frequency response and pole-zero map}\label{fig:26}
+  \caption{notch-comb filter frequency response and pole-zero map}\label{fig:30}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_42.jpg}
-  \caption{notch-comb filter coefficients}\label{fig:27}
+  \caption{notch-comb filter coefficients}\label{fig:31}
 \end{figure}
 
 TODO
