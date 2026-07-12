@@ -234,19 +234,25 @@ Output frequency spectrum of custom filtered signal is identical to Matlab filte
 
 \subsubsection{(g) Design with the fdatool an IIR filter which can be used instead of the FIR filter. Export the IIR filter as second-order-sections (SOS).}
 
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_77.png}
+  \caption{IIR butterworth basic idea}\label{fig:14}
+\end{figure}
+
+
 As already mentioned in the theoretical introduction, butterworth filter which is IIR allows for significanly stepper filter response including high stopband attenuation to be achoeved with low order $N$, euivalently small number of input and feedback coefficients. The frequency response of the Butterworth filter is maximally flat with no ripples in the passband and rolls off towards zero in the stopband \footnote{\url{https://en.wikipedia.org/wiki/Butterworth_filter}}.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_21.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_22.jpg}
-  \caption{IIR butterworth filter designer and filtered spectrum}\label{fig:14}
+  \caption{IIR butterworth filter designer and filtered spectrum}\label{fig:15}
 \end{figure}
 
 Exported as SOS for second order subsections, and G for scale values.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_75.jpg}
-  \caption{SOS matrix and G scale values exported from fdatool}\label{fig:15}
+  \caption{SOS matrix and G scale values exported from fdatool}\label{fig:16}
 \end{figure}
 
 Size of SOS is 13 by 6, meaning 13 cascaded 2nd order sections each with 3 $b$-coefficients and 3 $a$-coefficients, where $a_0$ is always 1. 
@@ -299,7 +305,7 @@ To compare custom sosfilt with Matlab, subtracted both outputs and took max of a
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_24.jpg}
-  \caption{max error between custom and matlab sosfilt}\label{fig:16}
+  \caption{max error between custom and matlab sosfilt}\label{fig:17}
 \end{figure}
 
 Result is 0.0545, small floating point precision error from cascading 13 sections. Thus, both customFilter and sosfilt functions work roughly identical to Matlab.
@@ -316,14 +322,14 @@ Convolution of $L$ samples with $M$ filter coefficients produces $L + M - 1$ out
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_76.png}
-  \caption{overlap add method basic idea}\label{fig:l1-ola}
+  \caption{overlap add method basic idea}\label{fig:18}
 \end{figure}
 
-Signal related image well explaining the concept can be found here \footnote{\url{https://en.wikipedia.org/wiki/Overlap-add_method}}.
+Signal related image well explaining the concept \footnote{\url{https://en.wikipedia.org/wiki/Overlap-add_method}}.
 
 \subsubsection{Implement your own Overlap-Add FIR-Filter function. Use also your own functions implemented in the winter semester. Compare it with the fftfilt function of matlab.}
 
-Custom implementation follows the basic structure of overlap-add pseudocode.
+Custom implementation for main loop follows the basic structure of overlap add pseudocode from wikipedia \footnote{\url{https://en.wikipedia.org/wiki/Overlap-add_method}}.
 
 \codeused
 \begin{matlab}
@@ -374,8 +380,8 @@ end
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_25.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_26.jpg}
-  \caption{overlap add output compared with conv and fftfilt}\label{fig:17}
+  \caption{overlap add output compared with conv and fftfilt}\label{fig:19}
 \end{figure}
 
-All three outputs match for the first 9 samples, which is length of inpit signal. Overlap add and conv produce full convolution length $L + M - 1 = 9 + 3 - 1 = 11$ samples. fftfilt returns only $L = 9$ samples truncating the $M - 1 = 2$ tail samples. Thus, extra 2 values at the end are convolution tail that extends beyond input signal length.
+Custom overlap add, fftfilt, and convolution function outputs match for the first 9 samples, which is length of inpit signal. Overlap add and conv produce full convolution length $L + M - 1 = 9 + 3 - 1 = 11$ samples. fftfilt returns only $L = 9$ samples truncating the $M - 1 = 2$ tail samples. Thus, extra 2 values at the end are convolution tail that extends outside input signal length.
 
