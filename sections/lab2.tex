@@ -5,7 +5,7 @@ Notch filters are used to filter out specific frequency inference at $\omega_0$.
 
 They are created with second order IIR filter designed directly from pole zero plot so that conjugate complex zero is located at that specific frequency $\omega_{0}$. Since zeros are exactly on the unit circle filter gain at $\omega_{0}$ is zero.
 
-For all other frequencies along unit circle distance from zeros and poles is roughly equal so gain is roughly 1. Conjugate complex poles are placed at the same angle but inside the unit circle at distance $r$ from origin. Pole radius $r$ controlls steepness and width of the notch. Notch becomes more steep and narrow as r approaches 1. For stability, $r < 1$ must hold (Figure 20).
+For all other frequencies along unit circle distance from zeros and poles is roughly equal so gain is roughly 1. Conjugate complex poles are placed at the same angle but inside the unit circle at distance $r$ from origin. Pole radius $r$ controlls steepness and width of the notch. Notch becomes more steep and narrow as r approaches 1. For stability, $r < 1$ must hold (Figure~\ref{fig:20}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_78.png}
@@ -18,7 +18,7 @@ Comb filters are used to attenuate multiple equally spaced frequencies (harmonic
 
 They are constructed by inserting zeros between original filter coefficients (since notch is IIR second order, if use as comb zeros must be inserted between both $b_n$ and $a_n$ coefficients) which increases sampling frequency $\omega_s$ while keeping the original filter shape unchanged. Basically, this means that instead of one notch filter operating up to $\omega_s/2$, there will be multiple, depending on the amount of zeros inserted. 
 
-Each inserted zero extends frequency range by original $\omega_s/2$, so inserting $n$ zeros produces ($n+1$) copies of filter shape between 0 to $\omega_s/2$ and replaces $z^{-1}$ with $z^{-(n+1)}$ in the transfer function (Figure 21).
+Each inserted zero extends frequency range by original $\omega_s/2$, so inserting $n$ zeros produces ($n+1$) copies of filter shape between 0 to $\omega_s/2$ and replaces $z^{-1}$ with $z^{-(n+1)}$ in the transfer function (Figure~\ref{fig:27}).
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_81.png}\hspace{4pt}
@@ -60,14 +60,14 @@ and
 
 I wrote notchFilter function that computes normalized angular frequency $\omega_0 = 2\pi \cdot f_s / f_a$ given desired parameters of $f_s$, $f_a$, $r$ and returns $b_n$ and $a_n$ coefficients. 
 
-For $f_s = 1000$ Hz, $f_a = 10000$ Hz, $r = 0.98$ output is (Figure 23).
+For $f_s = 1000$ Hz, $f_a = 10000$ Hz, $r = 0.98$ output is (Figure~\ref{fig:22}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_79.png}
   \caption{notch filter coefficients}\label{fig:22}
 \end{figure}
 
-Figure 22 shows very steep notch magnitude at 1 kHz reaching -30.18 $dB$ damping effect, which attenuates desired frequency. In pole zero map, as expected, zero is located at $\omega_0$ frequency to attenuate it with pole located almost where zero is with $r = 0.98$, this is what influences steepness of filter transition. Stability contraint is not violated $r$ < 1, thus system is stale and filter must work correctly. Phase changes at $\omega_0 = 1 kHz$ between -89 and +89 degrees because zeros on unit circle cause sign change in transfer function G(z), equivalently vector pointing to $\omega_0$ frequency passes through zero point changing its sign by 180 degrees (Figure 25).
+Figure~\ref{fig:21} shows very steep notch magnitude at 1 kHz reaching -30.18 $dB$ damping effect, which attenuates desired frequency. In pole zero map, as expected, zero is located at $\omega_0$ frequency to attenuate it with pole located almost where zero is with $r = 0.98$, this is what influences steepness of filter transition. Stability contraint is not violated $r$ < 1, thus system is stale and filter must work correctly. Phase changes at $\omega_0 = 1 kHz$ between -89 and +89 degrees because zeros on unit circle cause sign change in transfer function G(z), equivalently vector pointing to $\omega_0$ frequency passes through zero point changing its sign by 180 degrees (Figure~\ref{fig:23b}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_83.png}
@@ -113,7 +113,7 @@ What also I observed is that higher sampling rate leads to a bit wider notch in 
   \caption{same sample rate, different stop frequencies}\label{fig:24}
 \end{figure}
 
-Here I used different stop frequencies $f_s = 500$, $1000$, $2000$ Hz with fixed $f_a = 10000$. With such a case effect is directly inverse as expected from ratio in $\omega_0$ (\ref{eq:w}). Now as stop frequency increases, $\omega_0$ increases. Pole and zero with their complex conjugate pair move further away from Re axis (Figure 26). Plot of phase (Figure 26) provides information about G(z) transfer function sign change only for $f_s = 2000$, for the sake of not repeting same idea, spike in phase happens exactly where $\omega_0$ is calculated for 3 notches differently. 
+Here I used different stop frequencies $f_s = 500$, $1000$, $2000$ Hz with fixed $f_a = 10000$. With such a case effect is directly inverse as expected from ratio in $\omega_0$ (\ref{eq:w}). Now as stop frequency increases, $\omega_0$ increases. Pole and zero with their complex conjugate pair move further away from Re axis (Figure~\ref{fig:24}). Plot of phase (Figure~\ref{fig:24}) provides information about G(z) transfer function sign change only for $f_s = 2000$, for the sake of not repeting same idea, spike in phase happens exactly where $\omega_0$ is calculated for 3 notches differently. 
 
 All notches have roughly same steepness, but it can also be seen that $f_a = 22050$ Hz has a bit bigger damping effect on stopband reaching -34 $dB$.
 
@@ -197,7 +197,7 @@ Basic comb filter with $r$ = 0.9999995 and $Lf$ = 9 uses FIR structure with $a =
   \caption{basic comb filter frequency response and pole-zero map}\label{fig:28}
 \end{figure}
 
-Butterworth low pass should be used as comb with n = 3 repetitons. As explained in theoretical part, sampling frequency $\omega_s$ remains the same but instead of 1 low pass filter shape from 0 to $\omega_s/2$ there must be 3, compressing original range of low pass with a factor of 3. This principle is exactly same as in Figure 21, but there range is compressed with a factor of 5.
+Butterworth low pass should be used as comb with n = 3 repetitons. As explained in theoretical part, sampling frequency $\omega_s$ remains the same but instead of 1 low pass filter shape from 0 to $\omega_s/2$ there must be 3, compressing original range of low pass with a factor of 3. This principle is exactly same as in Figure~\ref{fig:27}, but there range is compressed with a factor of 5.
 
 \subsubsection{(a) Write a Comb filter function which can design a Comb filter by taking the following parameters:}
 
@@ -238,7 +238,7 @@ I used order $N$ = 4 butterworth lowpass with cutoff frequency at $0.2\pi$. Afte
 
 After applying comb function with $n = 3$, 3 zeros are inserted between each coefficient $b$ and $a$. Theoretically expected for butterworth lowpass filter shape to be repeated 3 times across spectrum 0 to $\pi$ with original lowpass filter shape to be compressed from 0 .. $\pi$ to 0 .. $\pi/3$.
 
-Figure 30 output confirms theoretically correct behavior. Magnitude spectrum of butterworth lowpass as comb shows that original filter shape was compressed 0 .. $\pi/3$ with attenuation (cutoff frequency) now starting at 0.04/5 $\pi$ roughly. Phase is also compressed to 0 .. $\pi/3$, which is $1/3$ of original lowpass filter range between 0 and $\pi$. Poles and zeros are copied 3 times, so there are now 12 poles and 12 zeros. 
+Figure~\ref{fig:29} output confirms theoretically correct behavior. Magnitude spectrum of butterworth lowpass as comb shows that original filter shape was compressed 0 .. $\pi/3$ with attenuation (cutoff frequency) now starting at 0.04/5 $\pi$ roughly. Phase is also compressed to 0 .. $\pi/3$, which is $1/3$ of original lowpass filter range between 0 and $\pi$. Poles and zeros are copied 3 times, so there are now 12 poles and 12 zeros. 
 
 Principle is very straightforward, such that the only effect that happens is 3 repeated copies of lowpass butterworth are placed inside original frequency range from 0 to $\omega_s/2$, preserving original characteristics, just being compressed.
 
@@ -277,7 +277,7 @@ I used $f_a = 10000$ Hz, $n = 3$, $r = 0.98$ to test function. Output on figure 
   \caption{notch-comb filter coefficients}\label{fig:31}
 \end{figure}
 
-Final notch comb filter coefficients are only 7 for $a$ and 7 for $b$, which is significantly more efficient to FIR, requiring much higher filter order for steep notches (Figure 32).
+Final notch comb filter coefficients are only 7 for $a$ and 7 for $b$, which is significantly more efficient to FIR, requiring much higher filter order for steep notches (Figure~\ref{fig:31}).
 
 \codeused
 \begin{matlab}
