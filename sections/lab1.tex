@@ -203,6 +203,7 @@ For FIR loops index (n - k + 1) >= 1 condition is needed, because lowest index i
 Output frequency spectrum of custom filtered signal based on the output shown on Figure~\ref{fig:13} is identical to Matlab filter() function output with FIR of order $N$ = 230 and rectangular function. Noise spike at around 1000 Hz with amplitude reduced from 11029 to 1100.
 
 \codeused
+\hypertarget{code:customFilter}{}
 \begin{matlab}
 function y = customFilter(b, a, x)
     ...
@@ -270,9 +271,10 @@ G(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
 
 SOS matrix has each row as one 2nd order section $[b_0\; b_1\; b_2\; 1\; a_1\; a_2]$. $G$ scale values are filter gain factors separated from $b$ coefficients of each section to avoid numerical issues. G multiplies all gain values together into one total gain factor.
 
-I implemented function for SOS using described principle and already implemented customFilter function (subsection f code used) that can calculate both FIR and IIR filter outputs based on provided filter coefficients $a$ and $b$. First it takes SOS matrix values, goes goes row by row, because rows are 13 second order subsystems, and extracts coefficients $b$ and $a$ that are in sequential order from 1 to 6. Then, for each row it calculates output signal $y$ using customFilter function. In the end after main loop finishes, I apply gain factor or scale values by multyping $y$ resulting output of main loop with $G$ that is exported from designed filter.
+I implemented \hyperlink{code:customSosfilt}{function for SOS} using described principle and already implemented \hyperlink{code:customFilter}{customFilter} function (subsection f code used) that can calculate both FIR and IIR filter outputs based on provided filter coefficients $a$ and $b$. First it takes SOS matrix values, goes goes row by row, because rows are 13 second order subsystems, and extracts coefficients $b$ and $a$ that are in sequential order from 1 to 6. Then, for each row it calculates output signal $y$ using \hyperlink{code:customFilter}{customFilter} function. In the end after main loop finishes, I apply gain factor or scale values by multyping $y$ resulting output of main loop with $G$ that is exported from designed filter.
 
 \codeused
+\hypertarget{code:customSosfilt}{}
 \begin{matlab}
 y_sos_matlab = sosfilt(SOS, x);
 function y = customSosfilt(SOS, G, x)
@@ -301,7 +303,7 @@ To compare custom sosfilt with Matlab, I subtract both outputs and took max of a
   \caption{max error between custom and matlab sosfilt}\label{fig:17}
 \end{figure}
 
-Result is 0.0545, which could correspond to a small floating point precision error from cascading 13 sections. Thus, both customFilter and sosfilt functions work roughly identical to Matlab.
+Result is 0.0545, which could correspond to a small floating point precision error from cascading 13 sections. Thus, both \hyperlink{code:customFilter}{customFilter} and \hyperlink{code:customSosfilt}{customSosfilt} functions work roughly identical to Matlab.
 
 \subsection{Homework 1 (Implement your own Overlap-Add FIR-Filter function)}
 
@@ -327,6 +329,7 @@ Custom implementation for main loop follows the basic structure of overlap add p
 Function code I developed is well explained by short comments I wrote during the preparation to the next lab 3, to avoid repetetion, I leave function code as it is.
 
 \codeused
+\hypertarget{code:overlapAdd}{}
 \begin{matlab}
 x = [3, -1, 0, 3, 2, 0, 1, 2, 1];
 h = [1, -1, 1];

@@ -58,7 +58,7 @@ and
   \caption{notch filter frequency response and pole-zero map}\label{fig:21}
 \end{figure}
 
-I wrote notchFilter function that computes normalized angular frequency $\omega_0 = 2\pi \cdot f_s / f_a$ given desired parameters of $f_s$, $f_a$, $r$ and returns $b_n$ and $a_n$ coefficients. 
+I wrote \hyperlink{code:notchFilter}{notchFilter} function that computes normalized angular frequency $\omega_0 = 2\pi \cdot f_s / f_a$ given desired parameters of $f_s$, $f_a$, $r$ and returns $b_n$ and $a_n$ coefficients. 
 
 For $f_s = 1000$ Hz, $f_a = 10000$ Hz, $r = 0.98$ output is (Figure~\ref{fig:22}).
 
@@ -77,6 +77,7 @@ Figure~\ref{fig:21} shows very steep notch magnitude at 1 kHz reaching -30.18 $d
 To produce magnitude and phase responses I used freqz(b,a,n,fs) Matlab function plots the frequency response of the filter at $n$ sample points for sample rate $f_s$ \footnote{\url{https://www.mathworks.com/help/signal/ref/freqz.html\#bt8l4c4\_sep\_shared-ba}}.
 
 \codeused
+\hypertarget{code:notchFilter}{}
 \begin{matlab}
 fs = 1000; fa = 10000; r = 0.98;
 function [b, a] = notchFilter(fs, fa, r)
@@ -103,7 +104,7 @@ As can be seen from how $\omega_0$ frequency is defined for this lab (\ref{eq:w}
   \caption{same stop frequency, different sample rates}\label{fig:23}
 \end{figure}
 
-I used notch filter function with fixed $f_s = 1000$ Hz and sample rates $f_a = 10000$, $22050$, $44100$ Hz. Output in figure 22 shows that as expected higher sampling rate $f_a$ leads to pole and zero with their complex cojugate pair to be placed closer to the Re axis where $w$ = 0, because $\omega_0$ decreases. Phase change happens at $\omega_0$ is calculated using given formula (\ref{eq:w}).
+I used \hyperlink{code:notchFilter}{notchFilter} function with fixed $f_s = 1000$ Hz and sample rates $f_a = 10000$, $22050$, $44100$ Hz. Output in figure 22 shows that as expected higher sampling rate $f_a$ leads to pole and zero with their complex cojugate pair to be placed closer to the Re axis where $w$ = 0, because $\omega_0$ decreases. Phase change happens at $\omega_0$ is calculated using given formula (\ref{eq:w}).
 
 What also I observed is that higher sampling rate leads to a bit wider notch in magnitude spectrum, equvalently smoother transition, and more magnitude damping effect. But not significant, all 3 notches have roughly same steepness. Attenuation reaches -34 $dB$ with $f_a = 22050$, $44100$ Hz, instead of -30.18 $dB$ with $f_a = 10000$. I am not sure how this behaviour should be interpreted, as I expected change only in $\omega_0$ as ratio values change.
 
@@ -176,6 +177,7 @@ Only $b$ coefficients are safe to sclae, because scaling $a$ coefficients can pu
 Since $z = e^{j\omega}$ at $\omega = 0$ (DC component of 0 H), $z = e^{j * 0} = 1$. So, we need gain correction factor (in my code it is $b_0$) that is ratio of denominator to numerator evaluated at $z = 1$, thus scales $b$ coefficients so that $H(z = 1) = 1$. 
 
 \codeused
+\hypertarget{code:notchFilterGC}{}
 \begin{matlab}
 function [b, a] = notchFilterGC(fs, fa, r)
     w0 = 2 * pi * fs / fa;
@@ -201,7 +203,7 @@ Butterworth low pass should be used as comb with n = 3 repetitons. As explained 
 
 \subsubsection{(a) Write a Comb filter function which can design a Comb filter by taking the following parameters:}
 
-I designed function for comb filter which is very simple. First, it initializes array of zeros for both $b$ and $a$ coefficients, which has a desired length after $n$ zeros insertion for repeating filter shape. After, we just rewrite every n $th$ position with original filter coefficients, next that would be Butterworth lowpass.
+I designed \hyperlink{code:combFilter}{function for comb filter} which is very simple. First, it initializes array of zeros for both $b$ and $a$ coefficients, which has a desired length after $n$ zeros insertion for repeating filter shape. After, we just rewrite every n $th$ position with original filter coefficients, next that would be Butterworth lowpass.
 
 % given parameters
 \begin{itemize}
@@ -209,6 +211,7 @@ I designed function for comb filter which is very simple. First, it initializes 
 \end{itemize}
 
 \codeused
+\hypertarget{code:combFilter}{}
 \begin{matlab}
 % 9 zeros part
 r = 0.9999995; Lf = 9;
@@ -254,7 +257,7 @@ zplane(b_comb, a_comb);
 
 \subsection{Homework 2 (Implement your own Notch-Comb filter function)}
 
-To design notch comb filter function given sample rate $f_a$, repetitions $n$, pole radius $r$, I first compute stop frequency $f_s$ of notch to be repeated, which is $f_a/2$, that corresponds to range between 0 and $\omega_{s}/2$, divided by $n$ repetitions of original filter shape. Then apply notch filter function to create notch filter with given pole radius parameter. And finally feed computed by notch filter $a$ and $b$ coefficients into comb filter function to get notch as comb filter.
+To design \hyperlink{code:notchCombFilter}{notch comb filter} function given sample rate $f_a$, repetitions $n$, pole radius $r$, I first compute stop frequency $f_s$ of notch to be repeated, which is $f_a/2$, that corresponds to range between 0 and $\omega_{s}/2$, divided by $n$ repetitions of original filter shape. Then apply \hyperlink{code:notchFilterGC}{notch filter} function to create notch filter with given pole radius parameter. And finally feed computed by notch filter $a$ and $b$ coefficients into \hyperlink{code:combFilter}{comb filter} function to get notch as comb filter.
 
 \subsubsection{Implement your own Notch-Comb filter function with the following parameters:}
 
@@ -280,6 +283,7 @@ I used $f_a = 10000$ Hz, $n = 3$, $r = 0.98$ to test function. Output on figure 
 Final notch comb filter coefficients are only 7 for $a$ and 7 for $b$, which is significantly more efficient to FIR, requiring much higher filter order for steep notches (Figure~\ref{fig:31}).
 
 \codeused
+\hypertarget{code:notchCombFilter}{}
 \begin{matlab}
 function [b_comb, a_comb] = notchCombFilter(fa, n, r)
     % notch at fa/2 divided by n repetitions
