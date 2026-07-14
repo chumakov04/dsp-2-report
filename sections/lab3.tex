@@ -8,7 +8,7 @@ Main idea of adaptive filtering is to dynamically adjust filter transfer functio
   \caption{main idea of adaptive filter}\label{fig:301}
 \end{figure}
 
-To adjust filter transfer function dynamically, real time resulting signal measure and error term must be introduced, to give meaningful direction to adapt. Since noise is mostly random, it has high power $P$. Therefore, power of output signal $y$ coming out of the system must be measured, assuming that noise is stationary, equivalently constant in freqeuncy and amplitude. Adaptive filter aims to have noise interference signal $a_i$ and modelled noise by adaptive filter $b_i$ to be equal, then meaningful error is error signal $e$, which is the difference between real signal $s_i$ = $x_i$ and output signal $y_i$ resulting from the adaptive filter (Figure~\ref{fig:302}). Error term equation is $e_i$ = $x_i$ - $y_i$.
+To adjust filter transfer function dynamically, real time resulting signal measure and error term must be introduced, to give meaningful direction to adapt. Since noise is mostly random, it has high power $P$. Therefore, power of output signal $y$ coming out of the system must be measured, assuming that noise is stationary, equivalently constant in freqeuncy and amplitude. Adaptive filter aims to have noise interference signal $a_i$ and modelled noise by adaptive filter $b_i$ to be equal, then meaningful error is error signal $e$, which is the difference between real signal $s_i$ and output signal $y_i$ resulting from the adaptive filter (Figure~\ref{fig:302}). Error term equation is $e_i$ = $s_i$ - $y_i$.
 
 If there is no noise interference, then error term would be zero, and trivially its power $P_e$ would also be zero. If noise is present and strong, error term would be large, and its power $P_e$ would emphasize it even more because of squaring the difference term.
 
@@ -17,7 +17,7 @@ If there is no noise interference, then error term would be zero, and trivially 
   \caption{error term in adaptive filter}\label{fig:302}
 \end{figure}
 
-Output signal $y$ can be filtered using simple FIR second order filter, which is same as convolution of filter coefficients $b_0$, $b_1$, $b_2$ with input signal samples. FIR is only safe option, because adjusting IIR feedback coefficients can put poles outside of unit circle in z-plane and make system unstable. Thus, what is left is to plug in $y$ FIR filtering formula into error term power equation $P_e$ and form relation of one of the coefficients and $P_e(b_i)$ expressed as parabola.
+In adaptive filtering with lms update rule signal $s_i$ is recorded with one microphone and noise signal $x_i$ is recorded separately with another microphone. Output signal $y$ can be filtered using simple FIR second order filter, which is same as convolution of filter coefficients $b_0$, $b_1$, $b_2$ with noise signal samples $x_i$. FIR is only safe option, because adjusting IIR feedback coefficients can put poles outside of unit circle in z-plane and make system unstable. Thus, what is left is to plug in $y$ FIR filtering formula into error term power equation $P_e$ and form relation of one of the coefficients and $P_e(b_i)$ expressed as parabola.
 
 After inserting $y_i = b_0 * x_i + b_1 * x_{i-1} + b_2 * x_{i-2}$ FIR filtered formula into $P_e$ and grouping terms that depend on $b_1$ separately from terms that do not depend on it into $A_i = s_i - b_0 * x_i - b_2 * x_{i-2}$ coefficient, $P_e(b_1)$ becomes parabola with minimum at optimal, equivalently minimum value of FIR filter coefficient $b_1$ (Figure~\ref{fig:303}). Same mechanism applies for all FIR coefficients $b_n$. 
 
@@ -194,6 +194,7 @@ figure;
 for m = 1:length(mus)
     mu = mus(m);
     ...
+    % adaptive filter routine (with recorded adapted b coefficients)
     for i=N+1:1:length(x)
         ...
     end
@@ -221,33 +222,24 @@ Only change is the input signal which is real one with sound.wav file that has 2
 
 Figure~\ref{fig:36} shows what task says. Channel 1 given with samples of disturbed signal and channel 2 samples of noise interference signal. 
 
-Following theoretical part, error signal $e(k)$ is calculated as difference between disturbed signal $d(k)$ and FIR filtered output signal $y$ produced by convolution of $b_n$ coefficients with noise signal samples. Then new $b_n$ coefficients are updated using same lms update rule (\ref{eq:lms}) as in previous subsection.  So, nothing is modified in the adaptive filter routine, only channel 1 and channel 2 from sound.wav are correctly used as $d$ and $x$ inputs as task specifies.
+Following theoretical part, error signal $e(k)$ is calculated as difference between disturbed signal $d(k)$ and FIR filtered output signal $y$ produced by convolution of $b_n$ coefficients with noise signal samples $x(n)$. Then new $b_n$ coefficients are updated using same lms update rule (\ref{eq:lms}) as in previous subsection. So, not much is modified in the adaptive filter routine, only channel 1 and channel 2 from sound.wav are correctly used as $d$ and $x$ inputs as task specifies.
 
 Only change I made is adaptation rate $mu$ to be 0.005 instead of 0.001, which played more clear output signal, judged by hearable difference. Figure~\ref{fig:36} shows recovered signal that has overall pattern as with noise in time domain but output is very clear almost without any noise interference. 
 
 \codeused
 \begin{matlab}
-% channel 1 -> disturbed
-d = signal(:, 1)';
-% channel 2 -> noise
-x = signal(:, 2)';
+d = signal(:, 1)'; % channel 1 -> disturbed
+x = signal(:, 2)'; % channel 2 -> noise
 % same adaptive filter routine
 mu = 0.005; N = 4;
-b = zeros(N+1,1);
-e = zeros(size(x));
-bb = zeros(N+1,length(x)-N+1);
+...
+% adaptive filter routine (with recorded adapted b coefficients)
 for i=N+1:1:length(x)
-    y = 0;
-    for n=1:1:N+1
-        y = y + b(n) * x(i - n + 1);
-    end
     ...
-end
 % plot, listen
 figure; subplot(3,1,1); plot(t, d); title('disturbed -> channel 1');
 subplot(3,1,2); plot(t, x); title('noise -> channel 2');
-subplot(3,1,3); plot(t, e); title('recovered signal');
-sound(e, fa);
+subplot(3,1,3); plot(t, e); title('recovered signal'); sound(e, fa);
 \end{matlab}
 
 \begin{figure}[H]
@@ -255,12 +247,9 @@ sound(e, fa);
   \caption{sound.wav b coefficients over time}\label{fig:37}
 \end{figure}
 
-Figure~\ref{fig:37} shows that only coefficient playing role is $b_0$ converging towards 1, with other coefficients $b_1$, $b_2$, $b_3$, $b_4$ converging towards 0. This means that noise added to signal has transfer function close to $[1, 0, 0, 0, 0]$, equivalently noise is added directly without delay or filtering. Therefore adaptive filter only needs to scale noise signal by factor of 1 and subtract it.
+Figure~\ref{fig:37} shows that only coefficient playing role is $b_0$ converging towards 1, with other coefficients $b_1$, $b_2$, $b_3$, $b_4$ converging towards 0. This means that noise added to signal has transfer function close to $[1, 0, 0, 0, 0]$, equivalently with no delay. $[1, 0, 0, 0, 0]$ means $y_i = 1 * x_i + 0 * x_{i-1} + 0 * x_{i-2} + ...$, so output equals current input sample directly with no past samples contributing. Thus no delay $z^{-1}$, $z^{-2}$, ... and no weighting of signal (it just passes through). Adaptive filter reproduces this transfer function so that subtracting it from disturbed signal recovers true undisturbed speech signal.
 
 \codeused
 \begin{matlab}
-figure;
-plot(bb');
-title('b coefficients over time');
-xlabel('sample');
+figure; plot(bb'); title('b coefficients over time'); ..
 \end{matlab}
