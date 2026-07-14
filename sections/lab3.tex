@@ -1,24 +1,107 @@
-% =====================================================================
-%  LAB 3 -- Adaptive Filter Design
-%  Headings copied word for word from DSP2_Lab3_Exercise.pdf
-% =====================================================================
 \clearpage
 \section{Lab exercise 3: Adaptive Filter Design}
 
-TODO
+Main idea of adaptive filtering is to dynamically adjust filter transfer function based on the noise coming to the listener that is constanly changing in real time with signal (Figure~\ref{fig:301}). It is impossible to know noise trasnfer function in advance, it can differ. To remove noise coming mixed with true signal, noise signal must be added with a minus sign and adaptive filter transfer function must be always changed so that it cancels out real noise distortion transfer function. This way system can get as close as possible to transfer function of incoming noise and cancel it.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_85.png}
+  \caption{main idea of adaptive filter}\label{fig:301}
+\end{figure}
+
+To adjust filter transfer function dynamically, real time resulting signal measure and error term must be introduced, to give meaningful direction to adapt. Since noise is mostly random, it has high power $P$. Therefore, power of output signal $y$ coming out of the system must be measured, assuming that noise is stationary, equivalently constant in freqeuncy and amplitude. Adaptive filter aims to have noise interference signal $a_i$ and modelled noise by adaptive filter $b_i$ to be equal, then meaningful error is error signal $e$, which is the difference between real signal $s_i$ = $x_i$ and output signal $y_i$ resulting from the adaptive filter (Figure~\ref{fig:302}). Error term equation is $e_i$ = $x_i$ - $y_i$.
+
+If there is no noise interference, then error term would be zero, and trivially its power $P_e$ would also be zero. If noise is present and strong, error term would be large, and its power $P_e$ would emphasize it even more because of squaring the difference term.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_86.png}
+  \caption{error term in adaptive filter}\label{fig:302}
+\end{figure}
+
+Output signal $y$ can be filtered using simple FIR second order filter, which is same as convolution of filter coefficients $b_0$, $b_1$, $b_2$ with input signal samples. FIR is only safe option, because adjusting IIR feedback coefficients can put poles outside of unit circle in z-plane and make system unstable. Thus, what is left is to plug in $y$ FIR filtering formula into error term power equation $P_e$ and form relation of one of the coefficients and $P_e(b_i)$ expressed as parabola.
+
+After inserting $y_i = b_0 * x_i + b_1 * x_{i-1} + b_2 * x_{i-2}$ FIR filtered formula into $P_e$ and grouping terms that depend on $b_1$ separately from terms that do not depend on it into $A_i = s_i - b_0 * x_i - b_2 * x_{i-2}$ coefficient, $P_e(b_1)$ becomes parabola with minimum at optimal, equivalently minimum value of FIR filter coefficient $b_1$ (Figure~\ref{fig:303}). Same mechanism applies for all FIR coefficients $b_n$. 
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_88.png}
+  \caption{error term in adaptive filter}\label{fig:303}
+\end{figure}
+
+Quadratic gives desired useful gradient of improvement since derivative at any value of $b_n$ indicates the direction and magnitude of error term minimization needed (Figure~\ref{fig:304}). If derivative is positive, $b_n$ is too high and must be reduced. If negative, $b_n$ must be increased. 
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_87.png}
+  \caption{error term gradient}\label{fig:304}
+\end{figure}
+
+With $M = 1$, coefficients are updated after every single sample instead of averaging gradient over a block of $M$ samples. Factor of 2 comes from derivative of squared error term $(s_i - y_i)^2$, minus sign from gradient and minus from gradient descent direction cancel out. 
+
+FIR filter coefficients are updated with learning rate (adaptation coefficient) $\mu$ or $\alpha$ on sketch I made (Figure~\ref{fig:304}). Smaller $\mu$ gives more accurate result but converges towards optimum slower. Larger $\mu$ leads to faster adaptation but can overshoot optimum. Resulting least mean squared update rule for each coefficient after every sample, I later use to complete given template for adaptive filtering, is (Equation~\ref{eq:lms}).
+
+\begin{equation}
+b_n^{new} = b_n^{old} + 2 \cdot \mu \cdot e_i \cdot x_{i-n}
+\label{eq:lms}
+\end{equation}
+
+So basic idea of adapting modelled noise tranfer function to cancel out noise is updating FIR filtered signal coefficients based on gradient of error term power with respect to corresponding filter coefficient. This approach is effective, but also should be noted that adjusting one coefficient $b_1$ influences others, thus optimal $b_1$ does not guarantee optimal $b_0$ and $b_2$. If $b_1$ reached optimum, and later $b_0$ is adjusted, $b_1$ can be no longer optimum.
 
 \subsection{Laboratory 3 -- Use the Adapt\_Filter\_Template.m and complete the code of the adaptive filter routine.}
 
-% diagram given on the exercise sheet (extracted from DSP2_Lab3_Exercise.pdf),
-% with the original caption of the sheet:
+Diagram given shows that degraded signal $d(k)$ contains useful signal mixed with noise. Noise source provides reference signal $x(k)$, which adaptive FIR filter processes into modelled noise $y(k)$. Error signal $e(k) = d(k) - y(k)$ is the recovered signal and at the same time feedback to the adaptive filter. Filter coefficients $b_n$ are updated after each sample using FIR coefficients update rule (Figure~\ref{fig:304}), where gradient of error power $P_e$ with respect to $b_n$ converges each coefficient towards its optimum on the parabola (Figure~\ref{fig:303}).
+
+% diagram given
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.75\textwidth]{image_43.png}\par
+  \includegraphics[width=0.6\textwidth]{image_43.png}\par
   \vspace{4pt}
   {\textbf{Fig. 1:} LMS - Adaptive Filter Concept}
 \end{figure}
 
-\subsubsection{(a) Check your adaptive filter routine if it is reconstructing the original signal.}
+Template given \hyperlink{code:templateSignals}{generate signal} with undisturbed sinusoid $s_0$ at 50 Hz and noise interference as Gaussian noise filtered through FIR order 10 as interference $x$. Interference is added to undisturbed sinusoid signal through transfer function $[0.2, 0.5, 0.8, 0.5, 0.2]$ to form degraded signal $d(k)$. Adaptive FIR filter of order $N = 4$ with adaptation parameter $\mu$ is initialized with zero coefficients. 
+
+Template gives outer sample loop and inner coefficient loops. Thus, only lms update rule using final equation (\ref{eq:lms}) from theoretical introduction for $b$ coefficients needs to be implemented. One more thing missing is $mu$ learning rate.
+
+\codeused
+\hypertarget{code:templateSignals}{}
+\begin{matlab}
+% Settings
+N = 4;
+% Filter Order
+dt = 1e-4;
+% Sample Time
+tend = 5;
+% Signal length
+t = 0:dt:tend-dt;
+% Undisturbed Signal
+s0 = sin(2*pi*50*t);
+% Interference
+xx = 0.5*randn(size(t));
+b = fir1(10, 0.8);
+x = filter(b, 1, xx);
+% Part of the Interference added to the undisturbed Signal
+sn = filter([0.2 0.5 0.8 0.5 0.2], 1, x);
+% Disturbed Signal
+d = s0 + sn;
+% adaptation parameter mu - MISSING!
+mu = ....; % find a good adaptation parameter mu
+% Adaptive Filter
+b = zeros(N+1,1); % Initialising Coefficients
+e = zeros(size(x)); % Filtered Signal as difference (d-y)
+bb = zeros(N+1,length(x)-N+1);  % to record new b-Coefficients
+% Adaptive Filter routine (with recorded adapted b coefficients)
+    for i=N+1:1:length(x)
+        y = 0;  
+        for n=1:1:N+1
+            % Output from Filtering
+        end
+        % Calculate filtered Signal as difference (d-y)
+		for n=1:1:N+1
+        % Calculate new b coefficients - MISSING!
+        end
+        % Record old b coefficients
+    end
+\end{matlab}
+
+To check how filtering works I ran script and plotted time domains of undisturbed signal, interference signal, disturbed signal, and resulting filtered signal. Found optimal $mu$ learning rate by trying different values 0.01, 0.001, 0.0001, and checking how close is filtered signal to its undisturbed time domain plot visually.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_44.jpg}\hspace{4pt}
@@ -26,10 +109,25 @@ TODO
   \caption{input signals and filtered result}\label{fig:32}
 \end{figure}
 
+Based on output in Figure~\ref{fig:32}, it can be seen that adaptive FIR filtering works well and time domain plots of filtered and undisturbed signals are mostly same, except some delay of FIR filter to be able to work, which took about 1 second, until filtering became almost perfect.
+
 \begin{figure}[H]
-  \includegraphics[width=0.6\textwidth]{image_46.jpg}
+  \includegraphics[width=0.48\textwidth]{image_46.jpg}\hspace{4pt}
+  \includegraphics[width=0.48\textwidth]{image_99.png}
   \caption{b coefficient convergence}\label{fig:33}
 \end{figure}
+
+FIR filter coefficients $b_0$ = $b_4$, $b_1$ = $b_3$, $b_2$ are contributing equally in filtering converging to respective values of 0.2, 0.5, 0.8 after about 1 second (Figure~\ref{fig:33}), almost exactly with some variance matching interference transfer function coefficients $[0.2, 0.5, 0.8, 0.5, 0.2]$ from the \hyperlink{code:templateSignals}{template}.
+
+\codeused
+\begin{matlab}
+% Plot disturbed and filtered Signal
+figure; subplot(2,1,1); .. title('disturbed'); subplot(2,1,2); .. title('filtered');
+% Plot recorded b coefficients in time
+figure; plot(bb'); ... legend('b0','b1','b2','b3','b4');
+\end{matlab}
+
+\subsubsection{(a) Check your adaptive filter routine if it is reconstructing the original signal.}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_47.jpg}
@@ -62,7 +160,3 @@ TODO
 \end{figure}
 
 TODO
-
-% NOTE: the Lab 3 exercise sheet contains no Homework/Assignment section.
-% If a homework was given separately, add here:
-% \subsection{Homework 3 (...)}
