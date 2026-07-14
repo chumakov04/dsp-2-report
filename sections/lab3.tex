@@ -38,7 +38,7 @@ With $M = 1$, coefficients are updated after every single sample instead of aver
 FIR filter coefficients are updated with learning rate (adaptation coefficient) $\mu$ or $\alpha$ on sketch I made (Figure~\ref{fig:304}). Smaller $\mu$ gives more accurate result but converges towards optimum slower. Larger $\mu$ leads to faster adaptation but can overshoot optimum. Resulting least mean squared update rule for each coefficient after every sample, I later use to complete given template for adaptive filtering, is (Equation~\ref{eq:lms}).
 
 \begin{equation}
-b_n^{new} = b_n^{old} + 2 \cdot \mu \cdot e_i \cdot x_{i-n}
+b_n^{new} = b_n^{old} + 2 * \mu * e_i * x_{i-n}
 \label{eq:lms}
 \end{equation}
 
