@@ -17,25 +17,48 @@ Labs 4 and 5 do not focus on frequency spectrum of images, instead use 2 dimensi
   \caption{high frequency amplitude change}\label{fig:402}
 \end{figure}
 
-Same logic as with 2 dimensional DFT applies also to 2 dimensional convolution, which inherits properties of 1 dimensional convolution that FIR filtering with 2 dimensional kernels in $x$ and $y$ direction use. Image (2 dimensional signal) is convolved with FIR filter 2 dimensional signal (coefficients) sliding across the image. Since 1 dimensional convolution goes only into 1 direction, 2 dimensional as DFT goes in both (Equation~\ref{eq:conv2d}).
+Same logic as with 2 dimensional DFT applies also to 2 dimensional convolution, which inherits properties of 1 dimensional convolution that FIR filtering with 2 dimensional kernels in $x$ and $y$ direction use. Image (2 dimensional signal) is convolved (compute inner product) with FIR filter 2 dimensional signal (coefficients) sliding across the image. Since 1 dimensional convolution goes only into 1 direction, 2 dimensional as DFT goes in both (Equation~\ref{eq:conv2d}).
 
 \begin{equation}
 P_{x,y} * F_{x,y} = \sum_{n=0}^{N} \sum_{m=0}^{M} F_{m,n} \cdot P_{x-m, y-n}
 \label{eq:conv2d}
 \end{equation}
 
-Basic principle of filtering with spatial domain image kernel with mean kernel (Figure~\ref{fig:403}). With 3 by 3 kernel boundary pixels of image require padding of 1 which is done using different methods, depending on what is desired \footnote{\url{https://www.mathworks.com/help/images/imfilter-boundary-padding-options.html}}. Central pixel in 3 by 3 neighborhood gets average value. Convolution window continue sliding until all pixels in image receive average value. 
+$P_{x,y}$ is image signal, $F_{x,y}$ is FIR filter window. Same as 1 dimensional convolution theorem that says that convolution in time domain corresponds to multiplication in frequency domain, same applies to image filtering. Labs 4 and 5 do not use frequency spectrum based filtering, thus I will not go into further detail.  Basic idea behind frequency domain filtering is instead of guessing values for perfect window FIR filter mask in spatial domain, simple rule for mask can be specified for frequency domain pairwise multiplication, like distance from origin to $(u, v)$ pair. Lowpass sets frequencies to 0 if distance is large, corresponding to attenuation of high frequency components.
 
-There are many other kernes like sharpening with alplacian, edge detection, smoothing with gaussian. These will be briefly explained before I use them in lab, otherwise it will take a lot of space to explain all.
+Basic principle of filtering with spatial domain image kernels shown on mean window (Figure~\ref{fig:403}). With 3 by 3 kernel boundary pixels of image require padding of 1 which is done using different methods, depending on what is desired, such as padding with constant vakue replication padding, reflection mirror padding, or zero padding \footnote{\url{https://www.mathworks.com/help/images/imfilter-boundary-padding-options.html}}. Central pixel in 3 by 3 neighborhood gets average value. Convolution window continue sliding until all pixels in image receive average value. 
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_105.png}
   \caption{mean kernel}\label{fig:403}
 \end{figure}
 
-$P_{x,y}$ is image signal, $F_{x,y}$ is FIR filter window. Same as 1 dimensional convolution theorem that says that convolution in time domain corresponds to multiplication in frequency domain, same applies to image filtering. Labs 4 and 5 do not use frequency spectrum based filtering, thus I will not go into further detail. 
+Another kernels that I use in the lab 4 are median, laplacian, gaussian, and combined laplacian of gaussian.
 
-Basic idea behind frequency domain filtering is instead of guessing values for perfect window FIR filter mask in spatial domain, simple rule for mask can be specified for frequency domain pairwise multiplication, like distance from origin to $(u, v)$ pair. Lowpass sets frequencies to 0 if distance is large, corresponding to attenuation of high frequency components.
+Gaussian kernel is better version of mean window, because it gives more weight towards center pixel and direct neighborhood pixels. For example, in 3 by 3 kernel corner pixels receive weight = 1. This also helps to preserve object shape and edges better. Weight is controlled by $\sigma$ variable (Figure~\ref{fig:409}), such that smaller $\sigma$ results in more weight towards central pixel of convolution mask, and less towards neighborhood.
+
+Median kernel replaces current center pixel with median value across its neighborhood. It is better than mean for noise reduction, because it removes small spikes caused by some reflections like stars on sky without blurring object edges so much as average does.
+
+Laplacian uses kernel values to determine image gradient in pixel intensity values in $x$ and $y$ direction (Figure~\ref{fig:408}). Instead of gradient vector $\nabla f(x,y) = g_x(x,y), \; g_y(x,y)$ that stores change in $x$ and $y$ directions separately, laplacian produces scalar by calculating horizontal and vertical second derivatives and adding together (Equation~\ref{eq:laplacian}). 
+
+\begin{equation}
+\nabla^2 f(x,y) = \frac{\partial^2 f(x,y)}{\partial x^2} + \frac{\partial^2 f(x,y)}{\partial y^2}
+\label{eq:laplacian}
+\end{equation}
+
+If there is a change, edge pixels receive amplified brightness values. Along with tresholding applied it can draw object edges while making everything else completely black. 
+
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{image_111.png}
+  \caption{second derivative operator}\label{fig:408}
+\end{figure}
+
+Laplacian values are selected to represent second derivative, making it vulnurable to detect noise spike as real object edge. Therefore, gaussian is used together with laplacian to remove such noise from image, also called mexican hat operator (Figure~\ref{fig:409}).
+
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{image_112.png}
+  \caption{second derivative operator}\label{fig:409}
+\end{figure}
 
 There are simplier methods to manipulate images are based on pixel intensity values distribution. Histogram tells how much pixels from 0 (dark) to 255 (bright) are contained in image, equivalently histogram provides high level summary of image based on frequency of each brightness value in image. If image histogram truns out to be bipolar with 2 dominant peaks (a lot of bright and dark pixels), then simple tresholding could be used to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:404}).
 
@@ -85,33 +108,103 @@ Color models used in the labs 4 and 5 will be briefly described where used, beca
 
 \subsection{Laboratory 4 -- Perform the following procedure of a automatic histogram equalisation:}
 
+I wrote custom functions to perform histogram equalization based on the described theory and example on Figure~\ref{fig:407}.
+
 \subsubsection{(a) build a histogram of the pixel values}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_51.jpg}
-  \caption{histogram of pout.gif pixel values}\label{fig:38}
+  \caption{histogram of pout.gif pixel values}\label{fig:408}
 \end{figure}
 
-TODO
+First of all I store image as 1 dimensional array of brightness values to compute histogram based on their frequency (count). Output on Figure~\ref{fig:408} shows that most pixel values are largely concentrated between 70-150 intensity values range, which indicates poor contrast. As already mentioned in theoretical intoduction, values cluttered need to be spread out through whole 0 to 255 value range with enough space inbetween to produce a better image contrast.
+
+\codeused
+\begin{matlab}
+i = imread('pout.gif');
+image = i(:);
+% pixel values from 0 to 255
+histogram = zeros(1, 256);
+for idx = 1:length(image)
+    % h(1) count of pixel value 0
+    % for ex, at idx = 3, pixel value 107 appears again -> h(108) goes from
+    % 1 to 2 count
+    histogram(image(idx) + 1) = histogram(image(idx) + 1) + 1;
+end
+% plot histogram
+figure
+bar(0:255, histogram); title('histogram'); xlabel('pixel value'); ylabel('count');
+\end{matlab}
 
 \subsubsection{(b) build the cumulative sum of this histogram}
 
-\begin{figure}[H]
-  \includegraphics[width=0.6\textwidth]{image_52.jpg}
-  \caption{cumulative sum of histogram}\label{fig:39}
-\end{figure}
+I build cumulative sum vector by summing all histogram counts from 0 to $k$ at each position $k$. First element stays same as histogram, then each next adds previous cumulative value and current histogram count. Last value $cumulative(256)$ trivially equals total pixel count in image 69480.
 
-TODO
+\codeused
+\begin{matlab}
+cumulative = zeros(1, 256);
+% pixel value 0 same
+cumulative(1) = histogram(1);
+% for each pixel value level between 1 and 255
+for k = 2:256
+    % old cumulative value + count of h
+    cumulative(k) = cumulative(k - 1) + histogram(k);
+end
+\end{matlab}
 
 \subsubsection{(c) normalise this cumulative sum to the max. pixel value}
 
-TODO
+Normalize calculated vector by dividing cumulative sum by its last value $cumulative(256)$ which equals total number of pixels. Result is 256 element vector with values from 0 to 1, which is exactly the cumulative distribution function $s_k = T(r_k)$ from Equation~\ref{eq:histeq}. Output on Figure~\ref{fig:409} shows that normalized cumulative sum is a very steep transfer function (will be used as lookup table) that maps cluttered 70-150 intensities value range to 0-1 taking all that range on $y$ axis.
+
+\codeused
+\begin{matlab}
+% normalized 1*256 vector -> 256 values
+% last value guaranteed to be max value
+normalized = cumulative / cumulative(256);
+figure; plot(0:255, normalized); title('cumulative sum of histogram');
+\end{matlab}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_52.jpg}
+  \caption{normalized cumulative sum of histogram}\label{fig:409}
+\end{figure}
 
 \subsubsection{(d) use this as a mapping from old-new pixel values (lookup-table)}
 
-TODO
+For each pixel in image, old pixel value is used as index into normalized cumulative sum, and result is multiplied by 255 to get new pixel value. For example, pixel with old value 107 looks up {normalized(108) = 0.31}, multiplied by 255 this gives new value 79. 
+
+Output on Figure~\ref{fig:410} shows resulting resulting output (mapping) vector. These are values of equalized image flattened 1 dimensional vector.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_114.png}
+  \caption{resulting vector that performs mapping and scaling by 255}\label{fig:410}
+\end{figure}
+
+This is exactly what I explained with example of discrete histogram equalization from Figure~\ref{fig:407}, where running sum stretches cluttered intensity region by creating gaps between mapped values.
+
+\codeused
+\begin{matlab}
+% initialize mapping as copy of image vector
+% output is 69480*1 uint8 column vector
+output = image;
+for k = 1:length(image)
+    % old_pixel = 107
+    % old_pixel + 1 = 108
+    old_pixel = image(k);
+    % normalized(108) = 0.31
+    % * 255 = 79 -> new pixel value
+    output(k) = normalized(old_pixel + 1) * 255;
+end
+\end{matlab}
 
 \subsubsection{(e) Test your algorithm on pout.gif show the original picture as well both histograms and the resulting picture.}
+
+Resulting output vector is reshaped back to original image dimensions $291$ * $240$ (Figure~\ref{fig:411}). 
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_116.png}
+  \caption{reshaped equalized vector}\label{fig:411}
+\end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_53.jpg}\hspace{4pt}
@@ -119,31 +212,54 @@ TODO
   \caption{equalized image and histogram comparison}\label{fig:40}
 \end{figure}
 
-TODO
+Figure~\ref{fig:40} shows that equalized image has visibly better contrast, with both person (main object) and background having much more distinct details. Original histogram has two clustered peaks, while equalized histogram is spread across full 0-255 range with multiple peaks as expected from cumulative sum transfer function.
+
+\codeused
+\begin{matlab}
+image_equalized = reshape(output, size(i));
+histogram_equalized = zeros(1, 256);
+% flatten equalized image
+equalized_image_flattened = image_equalized(:);
+for idx = 1:length(equalized_image_flattened)
+    histogram_equalized(equalized_image_flattened(idx) + 1) = ...
+        histogram_equalized(equalized_image_flattened(idx) + 1) + 1;
+end
+\end{matlab}
 
 \subsubsection{(f) Make a comparison to the histeq function of matlab.}
 
 \begin{figure}[H]
-  \includegraphics[width=0.6\textwidth]{image_55.jpg}
-  \caption{custom equalization vs matlab histeq}\label{fig:41}
+  \includegraphics[width=0.6\textwidth]{image_55.jpg}\par
+  \vspace{4pt}
+  \includegraphics[width=0.6\textwidth]{image_115.png}
+  \caption{custom equalization vs matlab histeq}\label{fig:415}
 \end{figure}
 
-TODO
+Figure~\ref{fig:415} shows that custom equalization and Matlab histeq function produce almost similar results visually with small differences based on how histeq is implemented.
+
+\codeused
+\begin{matlab}
+matlab = histeq(i);
+figure; subplot(1,2,1); imshow(image_equalized); title('custom');
+subplot(1,2,2); imshow(matlab); title('histeq');
+\end{matlab}
 
 \subsection{Laboratory 4 -- Built your own gamma-correction function by using the template gctemp.m:}
 
-$1/\gamma$ is used as exponent instead of $\gamma$, so passing $\gamma = 0.5$ to function actually uses $r^{1/0.5} = r^2$ which darkens. When transfer function maps values outside of $[0, 255]$ range, output is clipped to boundary value 0 or 255. This saturation is visible as peak at maximum value in output histogram where many bright pixels are set to $P_{out} = 255$.
+$1/\gamma$ is used as exponent instead of $\gamma$, so with $\gamma = 0.5$ function uses $r^{1/0.5} = r^2$ which makes image darker. When transfer function maps values outside of $[0, 255]$ range, output is clipped to boundary value 0 or 255.
+
+
 
 \subsubsection{(a) Test the template with different gammas}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_56.jpg}
-  \caption{gamma correction on pout.gif}\label{fig:42}
+  \caption{gamma correction on pout.gif}\label{fig:416}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_57.jpg}
-  \caption{gamma correction with contrast stretch on pout.gif}\label{fig:43}
+  \caption{gamma correction with contrast stretch on pout.gif}\label{fig:417}
 \end{figure}
 
 TODO
@@ -152,7 +268,7 @@ TODO
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_58.jpg}
-  \caption{gamma correction on church2.png}\label{fig:44}
+  \caption{gamma correction on church2.png}\label{fig:418}
 \end{figure}
 
 \begin{figure}[H]
@@ -162,12 +278,12 @@ TODO
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_60.jpg}
-  \caption{gamma correction on adler.jpg}\label{fig:46}
+  \caption{gamma correction on adler.jpg}\label{fig:419}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_61.jpg}
-  \caption{gamma correction with contrast stretch on adler.jpg}\label{fig:47}
+  \caption{gamma correction with contrast stretch on adler.jpg}\label{fig:420}
 \end{figure}
 
 TODO
@@ -178,17 +294,17 @@ TODO
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_62.jpg}
-  \caption{original, mean filter, and median filter}\label{fig:48}
+  \caption{original, mean filter, and median filter}\label{fig:421}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_63.jpg}
-  \caption{histogram equalization applied after filtering}\label{fig:49}
+  \caption{histogram equalization applied after filtering}\label{fig:422}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_64.jpg}
-  \caption{edge detection with laplacian and LoG after equalization}\label{fig:50}
+  \caption{edge detection with laplacian and LoG after equalization}\label{fig:423}
 \end{figure}
 
 TODO
@@ -203,12 +319,12 @@ TODO
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_65.jpg}
-  \caption{adler.jpg original and pixel histogram}\label{fig:51}
+  \caption{adler.jpg original and pixel histogram}\label{fig:424}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_66.jpg}
-  \caption{adler.jpg thresholding result}\label{fig:52}
+  \caption{adler.jpg thresholding}\label{fig:425}
 \end{figure}
 
 TODO
@@ -217,7 +333,7 @@ TODO
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_67.jpg}
-  \caption{HSV-based histogram equalization on church2.png}\label{fig:53}
+  \caption{HSVn color model based histogram equalization on church2.png}\label{fig:426}
 \end{figure}
 
 TODO
