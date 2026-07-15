@@ -24,7 +24,7 @@ P_{x,y} * F_{x,y} = \sum_{n=0}^{N} \sum_{m=0}^{M} F_{m,n} \cdot P_{x-m, y-n}
 \label{eq:conv2d}
 \end{equation}
 
-Basic principle of filtering with spatial domain image kernel with mean kernel (Figure~\ref{fig:403}). With 3 by 3 kernel boundary pixels of image require padding of 2 which is done using different methods, depending on what is desired \footnote{\url{https://www.mathworks.com/help/images/imfilter-boundary-padding-options.html}}. Central pixel in 3 by 3 neighborhood gets average value. Convolution window continue sliding until all pixels in image receive average value. 
+Basic principle of filtering with spatial domain image kernel with mean kernel (Figure~\ref{fig:403}). With 3 by 3 kernel boundary pixels of image require padding of 1 which is done using different methods, depending on what is desired \footnote{\url{https://www.mathworks.com/help/images/imfilter-boundary-padding-options.html}}. Central pixel in 3 by 3 neighborhood gets average value. Convolution window continue sliding until all pixels in image receive average value. 
 
 There are many other kernes like sharpening with alplacian, edge detection, smoothing with gaussian. These will be briefly explained before I use them in lab, otherwise it will take a lot of space to explain all.
 
@@ -50,11 +50,11 @@ Contrast is how well spread intensity values are in image, which is connected to
 
 More formally, transfer function $T$ maps input intensity $r$ to output $s = T(r)$. Slope thus is multiplier of differences between pixel values. Where slope $>1$, input intensity range is stretched to wider output range and contrast increases. Where slope $<1$, range is compressed and contrast decreases (Figure~\ref{fig:405}). 
 
-Gamma correction function uses exactly this principle. It is non linear transfer function to improve contrast in specific intensity range while compressing others. Output value is $s=g(x,y)$, input value is $r=f(x,y)$ which is original intensity value of pixel. Transfer function is $T[f(x,y)] = (f(x,y))^P$ applied to normalized pixel values in $[0, 1]$ range, where exponent $p$ determines shape of curve (Figure~\ref{fig:405}). If, for example, $p = 1$, $T$ is identity function with slope 1 everywhere, no change occurs. Only change in Matlab is naming convention $\gamma$ instead of $p$.
+Gamma correction function uses exactly this principle. It is non linear transfer function to improve contrast in specific intensity range while compressing others. Output value is $s=g(x,y)$, input value is $r=f(x,y)$ which is original intensity value of pixel. Transfer function is $T[f(x,y)] = (f(x,y))^p$ applied to normalized pixel values in $[0, 1]$ range, where exponent $p$ determines shape of curve (Figure~\ref{fig:405}). If, for example, $p = 1$, $T$ is identity function with slope 1 everywhere, no change occurs. Only change in Matlab is naming convention $\gamma$ instead of $p$.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_106.png}
-  \caption{image histogram}\label{fig:405}
+  \caption{transfer function and gamma correction}\label{fig:405}
 \end{figure}
 
 In probability density function $p_r(r)$ (chance of each brightness value occurance) total area under curve is always 1 because it represents all pixel intensity values. If section is stretched by slope $> 1$, width increases so height must decrease to keep area same. If compressed by slope $<1$, width decreases and height increases (Figure~\ref{fig:406}).
@@ -78,7 +78,7 @@ Simple example of discrete histogram equalization for 8-bit image with 0-255 gre
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_110.png}
-  \caption{image histogram}\label{fig:407}
+  \caption{discrete histogram equalization example}\label{fig:407}
 \end{figure}
 
 Color models used in the labs 4 and 5 will be briefly described where used, because this is not main focus of the lab. Main idea is how brightness (luminance) channel is extracted, because it contains all required high frequency details.
