@@ -1,12 +1,87 @@
-% =====================================================================
-%  LAB 4 -- 2D-Filter and Image Processing
-%  Headings copied word for word from DSP2_Lab4_Exercise.pdf
-% =====================================================================
 \clearpage
 \section{Lab exercise 4: 2D-Filter and Image Processing}
 
-TODO: chapter introduction -- theory about histogram equalisation,
-gamma correction and image filtering.
+Image $P(x, y)$ is 2 dimensional signal with spatial coordinates $x$ and $y$. Signal values in this case are intensity (brightness) values of pixels ranging from 0 to 255 captured by sensor. Some captured by digital sensor rays are very strong and cause maximum intensity 255, equivalenty to white color. Some areas on the sensor do not capture any rays and thus can get intensity value of 0, equivalently complete black color. 
+
+2 dimensional signals can be modified and filtered in time and frequency domains following same principles as 1 dimensional signals by applying DFT in both spatial directions $x$ and $y$ sequentially, first DFT in $x$ direction (column by column), and second applied to the result of first in $y$ direction (row by row). The result it $Q(u, v)$ frequency spectrum that has same size as image with DC component at $Q(0, 0)$ representing average intensity of image, and values corresponding to bigger $u$ or $v$ represent high frequency details in image like tiny edges. Of course, conjugate symmetry applies but with 4 quadrants in frequency spectrum, as all properties for 1 dimensional DFT hold. Each $(u, v)$ pair is information about containment of sinusoid with that specific frequency in image (Figure~\ref{fig:401}).
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_103.png}
+  \caption{frequency spectrum}\label{fig:401}
+\end{figure}
+
+Labs 4 and 5 do not focus on frequency spectrum of images, instead use 2 dimensional kernels, thus I will not go into much more detail. What is important to mention is that frequency in image is basically amplitude change between pixel intensities of neighboring pixels (Figure~\ref{fig:402}). If 1 pixel has value 0 = Black, and second pixel receives ray with value 255 = White, then this is highest frequency possible. Amplitude change is from lowest to highest value (white edge on black backround). While, smooth changes like sky gradient would correspond to low frequency components. 
+
+\begin{figure}[H]
+  \includegraphics[width=0.48\textwidth]{image_102.png}
+  \caption{high frequency amplitude change}\label{fig:402}
+\end{figure}
+
+Same logic as with 2 dimensional DFT applies also to 2 dimensional convolution, which inherits properties of 1 dimensional convolution that FIR filtering with 2 dimensional kernels in $x$ and $y$ direction use. Image (2 dimensional signal) is convolved with FIR filter 2 dimensional signal (coefficients) sliding across the image. Since 1 dimensional convolution goes only into 1 direction, 2 dimensional as DFT goes in both (Equation~\ref{eq:conv2d}).
+
+\begin{equation}
+P_{x,y} * F_{x,y} = \sum_{n=0}^{N} \sum_{m=0}^{M} F_{m,n} \cdot P_{x-m, y-n}
+\label{eq:conv2d}
+\end{equation}
+
+Basic principle of filtering with spatial domain image kernel with mean kernel (Figure~\ref{fig:403}). With 3 by 3 kernel boundary pixels of image require padding of 2 which is done using different methods, depending on what is desired \footnote{\url{https://www.mathworks.com/help/images/imfilter-boundary-padding-options.html}}. Central pixel in 3 by 3 neighborhood gets average value. Convolution window continue sliding until all pixels in image receive average value. 
+
+There are many other kernes like sharpening with alplacian, edge detection, smoothing with gaussian. These will be briefly explained before I use them in lab, otherwise it will take a lot of space to explain all.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_105.png}
+  \caption{mean kernel}\label{fig:403}
+\end{figure}
+
+$P_{x,y}$ is image signal, $F_{x,y}$ is FIR filter window. Same as 1 dimensional convolution theorem that says that convolution in time domain corresponds to multiplication in frequency domain, same applies to image filtering. Labs 4 and 5 do not use frequency spectrum based filtering, thus I will not go into further detail. 
+
+Basic idea behind frequency domain filtering is instead of guessing values for perfect window FIR filter mask in spatial domain, simple rule for mask can be specified for frequency domain pairwise multiplication, like distance from origin to $(u, v)$ pair. Lowpass sets frequencies to 0 if distance is large, corresponding to attenuation of high frequency components.
+
+There are simplier methods to manipulate images are based on pixel intensity values distribution. Histogram tells how much pixels from 0 (dark) to 255 (bright) are contained in image, equivalently histogram provides high level summary of image based on frequency of each brightness value in image. If image histogram truns out to be bipolar with 2 dominant peaks (a lot of bright and dark pixels), then simple tresholding could be used to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:404}).
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_104.png}
+  \caption{image histogram}\label{fig:404}
+\end{figure}
+
+Another method of histogram modification is contrast enhancement that can be achieved with transfer functions and histogram equalization. 
+
+Contrast is how well spread intensity values are in image, which is connected to how human eye perceives surroundings. If image is bright everywhere, it is difficiult to see tiny details, as well as in complete dark image. In low contrast image histogram brightness values are clustered in a narrow range like most between 200-210 intensity levels, while other before and after this cluster are not used well. Thus, transfer function can be designed to spread out this narrow range to 0-255.
+
+More formally, transfer function $T$ maps input intensity $r$ to output $s = T(r)$. Slope thus is multiplier of differences between pixel values. Where slope $>1$, input intensity range is stretched to wider output range and contrast increases. Where slope $<1$, range is compressed and contrast decreases (Figure~\ref{fig:405}). 
+
+Gamma correction function uses exactly this principle. It is non linear transfer function to improve contrast in specific intensity range while compressing others. Output value is $s=g(x,y)$, input value is $r=f(x,y)$ which is original intensity value of pixel. Transfer function is $T[f(x,y)] = (f(x,y))^P$ applied to normalized pixel values in $[0, 1]$ range, where exponent $p$ determines shape of curve (Figure~\ref{fig:405}). If, for example, $p = 1$, $T$ is identity function with slope 1 everywhere, no change occurs. Only change in Matlab is naming convention $\gamma$ instead of $p$.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_106.png}
+  \caption{image histogram}\label{fig:405}
+\end{figure}
+
+In probability density function $p_r(r)$ (chance of each brightness value occurance) total area under curve is always 1 because it represents all pixel intensity values. If section is stretched by slope $> 1$, width increases so height must decrease to keep area same. If compressed by slope $<1$, width decreases and height increases (Figure~\ref{fig:406}).
+
+Histogram equalization achieves best possible contrast in image by using image intensity values histogram $p_r(r)$ to calculate custom transfer function that makes output histogram flat in density $p_s(s)$, equivalently uniform distribution with equal prbability of each intensity level occcuring. Cumulative distribution function needs to be applied as intensity transfer function. In continious case with infinitely many brightness leveks this is integration of $p_r(r)$. 
+
+\begin{figure}[H]
+  \includegraphics[width=0.46\textwidth]{image_108.png}\hspace{4pt}
+  \includegraphics[width=0.50\textwidth]{image_109.png}
+  \caption{continious histogram equalization}\label{fig:406}
+\end{figure}
+
+For discrete 8-bit image with $L = 256$ gray levels, integration is replaced by discrete summation. Relative frequency of each intensity level $k$ is $p_r(r_k) = \frac{n_k}{n}$, where $n$ is total number of pixels and $n_k$ is number of occurrences of specific gray level $k$. Running sum of these probabilities gives each intensity level $k$ new rank (Equation~\ref{eq:histeq}).
+
+\begin{equation}
+s_k = T(r_k) = \sum_{i=0}^{k} p_r(r_i) = \sum_{i=0}^{k} \frac{n_i}{n}
+\label{eq:histeq}
+\end{equation}
+
+Simple example of discrete histogram equalization for 8-bit image with 0-255 grey levels (Figure~\ref{fig:407}). Exactly such algorithm I used in lab. 
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_110.png}
+  \caption{image histogram}\label{fig:407}
+\end{figure}
+
+Color models used in the labs 4 and 5 will be briefly described where used, because this is not main focus of the lab. Main idea is how brightness (luminance) channel is extracted, because it contains all required high frequency details.
 
 \subsection{Laboratory 4 -- Perform the following procedure of a automatic histogram equalisation:}
 
@@ -56,6 +131,8 @@ TODO
 TODO
 
 \subsection{Laboratory 4 -- Built your own gamma-correction function by using the template gctemp.m:}
+
+$1/\gamma$ is used as exponent instead of $\gamma$, so passing $\gamma = 0.5$ to function actually uses $r^{1/0.5} = r^2$ which darkens. When transfer function maps values outside of $[0, 255]$ range, output is clipped to boundary value 0 or 255. This saturation is visible as peak at maximum value in output histogram where many bright pixels are set to $P_{out} = 255$.
 
 \subsubsection{(a) Test the template with different gammas}
 
