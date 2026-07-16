@@ -9,7 +9,9 @@ Smoothing filters are used to reduce noise, but they often result in blurring
 
 \subsubsection{(a) Manual Implementation: Import the image 'cameraman.tif'. Implement a 3\hx3 Box Filter using only for loops. Each pixel should be replaced by the average of its 3\hx3 neighborhood.}
 
-As already explained in example on Figure~\ref{fig:403}, mean kernel computes inner product of 3 by 3 original image neighborhood pixel block and kernel values which are 1/9 and replaces central pixel with average value.  Padding of 1 must be done because when central pixel of kernel is at the position of image border pixel, there is 1 kernel pixel outside of image. It can be easily done without any complex padding function. I just initialize average = zeros(rows, cols) and slide kernel starting from second pixel in image, so that image is implicitely gets zero padded as with conv2 Matlab function.
+As already explained in example on Figure~\ref{fig:403}, mean kernel computes inner product of 3 by 3 original image neighborhood pixel block and kernel values which are 1/9 and replaces central pixel with average value.  
+
+Padding of 1 must be done because when central pixel of kernel is at the position of image border pixel, there is 1 kernel pixel outside of image. It can be easily done without any complex padding function. I just initialize average = zeros(rows, cols) and slide kernel starting from second pixel in image, so that image is implicitely gets zero padded as with conv2 Matlab function.
 
 \codeused
 \begin{matlab}
@@ -78,7 +80,9 @@ Laplace operator principle is well explained with Equation~\ref{eq:laplacian} an
 \]
 Use manual convolution (nested loops).
 
-HL in my code is Laplace window that will detect amplitude changes in intensity values, and if there is a change, it will assign proportionate value to such center pixels. Zero padding is done as before. As instructed convolution is done with nested loops, for each pixel 3 by 3 neighborhood block is extracted, element wise multiplied by HL kernel weights and all 9 products are summed into single output value for that center pixel.
+HL in my code is Laplace window that will detect amplitude changes in intensity values, and if there is a change, it will assign proportionate value to such center pixels. 
+
+Zero padding is done as before. As instructed convolution is done with nested loops, for each pixel 3 by 3 neighborhood block is extracted, element wise multiplied by HL kernel weights and all 9 products are summed into single output value for that center pixel.
 
 \codeused
 \begin{matlab}
