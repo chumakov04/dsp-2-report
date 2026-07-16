@@ -579,9 +579,57 @@ coin(adler > threshold) = 255;
 
 \subsection{Homework 4 (Diary only: Adapt your own histogram equalisation algorithm to perform a good result for the coloured picture church2.png)}
 
+I used HSV color model (NB: worked better with this image then rgb2ycbcr with green channel for details) with rgb2hsv Matlab function \footnote{\url{https://www.mathworks.com/help/matlab/ref/rgb2hsv.html}}, since image is provided colored with 3 channels. Code is well commented, main difference from the lab is that I extract V = brightness channel and perform histogram equalization on it, which makes sense because these are color intensities. Only thing to track is converting between [0, 1] and [0, 255] as HSV returned as an m-by-n-by-3 numeric array with values in the range [0, 1] while developed equalization function are designed to receive input as [0, 255] and normalize after. Code is well commented, and other functionality is same as I used in lab.
+
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_67.jpg}
-  \caption{HSVn color model based histogram equalization on church2.png}\label{fig:427}
+  \caption{HSV color model based histogram equalization on church2.png}\label{fig:427}
 \end{figure}
 
-TODO
+Output on Figure~\ref{fig:427} shows extremely good result with even dark grass getting enough contrast. My assumption is that given image is just artifically darkened with pixel intinsities range compressed to a narrow. Thus, once equalization spreads them out, result is perfect.
+
+\codeused
+\begin{matlab}
+% HSV -> color is defined by Hue, Saturation, Value (s 5.1, p. 233)
+% the black and white image can be derived immediately from a color image,
+% as the Value component corresponds to the brightness value
+% -> equalize only V brightness channel, keep H and S unchanged
+church = imread('church2.png');
+% convert to HSV where V is brightness
+churchhsv = rgb2hsv(church);
+% https://www.mathworks.com/help/matlab/ref/rgb2hsv.html
+% extract luminance channel
+% HSV image, returned as 3-by-n-by-3 numeric array with values in range [0, 1]
+% 1 hue, 2 saturation, 3 brightness
+V = churchhsv(:, :, 3);
+% convert from [0, 1] to [0, 255]
+V = V * 255;
+% convert to int
+V = uint8(V);
+% histogram of V channel
+image = V(:);
+histogram = zeros(1, 256);
+for idx = 1:length(image)
+    histogram(image(idx) + 1) = histogram(image(idx) + 1) + 1;
+end
+% cumulative sum
+cumulative = zeros(1, 256);
+cumulative(1) = histogram(1);
+for k = 2:256
+    cumulative(k) = cumulative(k - 1) + histogram(k);
+end
+% normalise to max pixel value
+normalized = cumulative / cumulative(256);
+% mapping from old to new pixel values
+output = image;
+for k = 1:length(image)
+    old_pixel = image(k);
+    output(k) = normalized(old_pixel + 1) * 255;
+end
+% put equalized V back as [0,1]
+% keep H and S unchanged
+church_hsv(:, :, 3) = double(reshape(output, size(V))) / 255;
+church_eq = hsv2rgb(church_hsv);
+figure; subplot(1, 2, 1); imshow(church); title('original');
+subplot(1, 2, 2); imshow(church_eq); title('equalized');
+\end{matlab}

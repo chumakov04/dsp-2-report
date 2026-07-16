@@ -1,22 +1,15 @@
-% =====================================================================
-%  LAB 5 -- Smoothing, Laplace, Unsharp Masking, GPU Challenge
-%  Headings copied word for word from DSP2_Lab5_Exercise-2.pdf
-%  NOTE: the Lab 5 sheet has no single topic line under "Lab Exercise",
-%  so the chapter title below combines the four task titles -- rename it
-%  if you prefer something else.
-% =====================================================================
 \clearpage
 \section{Lab exercise 5: Smoothing and Noise Reduction, Edge Enhancement, Unsharp Masking, GPU Challenge}
 
-TODO: chapter introduction -- theory about smoothing filters, Laplace
-operator, unsharp masking and GPU computing.
+Theoretical introduction about smoothing, edge detection, and kernels is already given in lab 4. Only uncovered concept is unsharp masking. Laplacian detects edges by computing second derivative, so subtracting laplacian from original image $I_{sharp} = I_{original} - \nabla^2(I_{original})$ adds edge information back to original. Flat regions where laplacian is 0 stay unchanged, but at edges where laplacian produces negative values the subtraction amplifies intensity differences making edges sharper.
 
 \subsection{Laboratory 5 -- Smoothing and Noise Reduction}
 
-% description given on the exercise sheet:
 Smoothing filters are used to reduce noise, but they often result in blurring
 
 \subsubsection{(a) Manual Implementation: Import the image 'cameraman.tif'. Implement a 3\hx3 Box Filter using only for loops. Each pixel should be replaced by the average of its 3\hx3 neighborhood.}
+
+As already explained in example on Figure~\ref{fig:403}, mean kernel computes inner product of 3 by 3 original image neighborhood pixel block and kernel values which are 1/9 and replaces central pixel with average value.  Padding of 1 must be done because when central pixel of kernel is at the position of image border pixel, there is 1 kernel pixel outside of image. It can be easily done without any complex padding function. I just initialize average = zeros(rows, cols) and slide kernel starting from second pixel in image, so that image is implicitely gets zero padded as with conv2 Matlab function.
 
 \codeused
 \begin{matlab}
@@ -33,13 +26,11 @@ function average = average_filter(image)
 end
 \end{matlab}
 
-TODO
-
 \subsubsection{(b) Comparison: Apply a 3\hx3 Gaussian Filter using the kernel G provided in the sources:}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_68.jpg}
-  \caption{original, average filter, and gaussian filter}\label{fig:54}
+  \caption{original, average filter, and gaussian filter}\label{fig:501}
 \end{figure}
 
 % kernel given on the exercise sheet:
@@ -53,6 +44,8 @@ TODO
 \]
 Explain why the Gaussian filter results in less contour blurring than the Box filter.
 
+Output on Figure~\ref{fig:501} shows that, as expected, gaussian kernel resulted in less blurring of object edge pixels, because gaussian weightens central pixels 4 times more than corner pixels of the kernel, and direct neighborhood ones 2 times more. Average becomes weighted towards what kernel looks at right now, and do not just blindly average pixels.
+
 \codeused
 \begin{matlab}
 G = (1/16) * [1 2 1; 2 4 2; 1 2 1];
@@ -60,21 +53,21 @@ G = (1/16) * [1 2 1; 2 4 2; 1 2 1];
 gf = conv2(double(bf), G, 'same');
 \end{matlab}
 
-TODO
-
 \subsubsection{(c) Boundary Handling: Briefly describe how your code handles the edges of the image (e.g., zero-padding or ignoring borders).}
 
-TODO
+Already explained for the previous subsection with mean kernel. For gaussian I used conv2 Matlab function that does exact same zero padding as manual approach with zero output initialization.
 
 \subsection{Laboratory 5 -- Edge Enhancement with the Laplace Operator}
 
-% description given on the exercise sheet:
+% description 
 The Laplace operator is used to highlight intensity changes by calculating the
 second derivative.
 
+Laplace operator principle is well explained with Equation~\ref{eq:laplacian} and description around it, so I will proceed towards implementation and discussion of results.
+
 \subsubsection{(a) Implementation: Apply the standard 3\hx3 Laplace kernel \texorpdfstring{$H_L$}{HL} to the Y (Luminance) component of the image 'peppers.png':}
 
-% kernel given on the exercise sheet:
+% kernel given
 \[
   H_L =
   \begin{pmatrix}
@@ -84,6 +77,8 @@ second derivative.
   \end{pmatrix}
 \]
 Use manual convolution (nested loops).
+
+HL in my code is Laplace window that will detect amplitude changes in intensity values, and if there is a change, it will assign proportionate value to such center pixels. Zero padding is done as before. As instructed convolution is done with nested loops, for each pixel 3 by 3 neighborhood block is extracted, element wise multiplied by HL kernel weights and all 9 products are summed into single output value for that center pixel.
 
 \codeused
 \begin{matlab}
@@ -102,20 +97,29 @@ function laplace = laplace_filter(image, HL)
 end
 \end{matlab}
 
-TODO
+Before applying laplacian I extract luminance channel Y from given 3 channel rgb image using ycbcr color model \footnote{\url{https://en.wikipedia.org/wiki/YCbCr}}, where Y channel stores brightness of each pixel as weighted sum of red, green, and blue channels $Y = 0.299R + 0.587G + 0.114B$. It follows human eye biology, since it is most visually perceivable high frequency details are green color. Laplace works on Y channel.
+
+\codeused
+\begin{matlab}
+Y = 0.299 * double(pep(:,:,1)) + 0.587 * double(pep(:,:,2)) + 0.114 * double(pep(:,:,3));
+\end{matlab}
 
 \subsubsection{(b) Visualization: The resulting image contains negative values. Explain how you visualize this ``Laplace image''correctly (e.g., using absolute values or shifting the zero-point).}
 
-\begin{figure}[H]
-  \includegraphics[width=0.6\textwidth]{image_69.jpg}
-  \caption{original peppers and laplace edge detection}\label{fig:55}
-\end{figure}
+To visualize output of laplace kernel correctly, I used absolute value, since magnitude of edge is desired and not its sign (bright to dark edge transition or dark to light edge produce different signs). Taking absolute values makes more sense because it should preserve all detected edges instead of just assigning negative to background. 
 
-TODO
+\codeused
+\begin{matlab}
+laplace = laplace_filter(Y, HL);
+figure;
+subplot(1, 3, 1); imshow(pep); title('original');
+% visualize image correctly by using abs value
+subplot(1, 3, 2); imshow(uint8(abs(laplace))); title('laplace abs');
+\end{matlab}
 
 \subsection{Laboratory 5 -- Unsharp Masking}
 
-% description given on the exercise sheet:
+% description
 Unsharp masking enhances edges by subtracting a blurred version of the image
 from the original
 
@@ -130,16 +134,17 @@ sharp = double(pep) - laplace_pep;
 sharp = max(0, min(255, sharp));
 \end{matlab}
 
-\begin{figure}[H]
-  \includegraphics[width=0.6\textwidth]{image_70.jpg}
-  \caption{original vs laplace sharpened image}\label{fig:56}
-\end{figure}
-
-TODO
-
 \subsubsection{(b) Effect: Describe the visual difference between the original image and the sharpened result.}
 
-TODO
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_70.jpg}
+  \caption{original vs laplace sharpened image}\label{fig:502}
+\end{figure}
+
+Output on Figure~\ref{fig:502} shows exactly expacted behavior. Output of laplace which are edge countours is subtracted from original image. At edge where center pixel is brighter than 3 by 3 neighboorhood ones, laplacian output is negative (because center pixel is multplied by a factor of $-4$). Thus, $original\_image - (- edge\_pixel) = original\_image + edge\_pixel$, so intensity value of such edge pixel increases further. This amplifies edges while keeping rest of image unchanged. 
+
+Similar behavior can be achieved with tresholding edges to the red color, for example. 
+
 
 \subsection{Laboratory 5 -- GPU Challenge}
 
