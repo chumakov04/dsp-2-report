@@ -35,11 +35,11 @@ Basic principle of filtering with spatial domain image kernels shown on mean win
 
 Another kernels that I use in the lab 4 are median, laplacian, gaussian, and combined laplacian of gaussian.
 
-Gaussian kernel is better version of mean window, because it gives more weight towards center pixel and direct neighborhood pixels. For example, in 3 by 3 kernel corner pixels receive weight = 1. This also helps to preserve object shape and edges better. Weight is controlled by $\sigma$ variable (Figure~\ref{fig:409}), such that smaller $\sigma$ results in more weight towards central pixel of convolution mask, and less towards neighborhood.
+Gaussian kernel is better version of mean window, because it gives more weight towards center pixel and direct neighborhood pixels. For example, in 3 by 3 kernel corner pixels receive weight = 1. This also helps to preserve object shape and edges better. Weight is controlled by $\sigma$ variable (Figure~\ref{fig:405}), such that smaller $\sigma$ results in more weight towards central pixel of convolution mask, and less towards neighborhood.
 
 Median kernel replaces current center pixel with median value across its neighborhood. It is better than mean for noise reduction, because it removes small spikes caused by some reflections like stars on sky without blurring object edges so much as average does. 
 
-Laplacian uses kernel values to determine image gradient in pixel intensity values in $x$ and $y$ direction (Figure~\ref{fig:408}). Instead of gradient vector $\nabla f(x,y) = g_x(x,y), \; g_y(x,y)$ that stores change in $x$ and $y$ directions separately, laplacian produces scalar by calculating horizontal and vertical second derivatives and adding together (Equation~\ref{eq:laplacian}). 
+Laplacian uses kernel values to determine image gradient in pixel intensity values in $x$ and $y$ direction (Figure~\ref{fig:404}). Instead of gradient vector $\nabla f(x,y) = g_x(x,y), \; g_y(x,y)$ that stores change in $x$ and $y$ directions separately, laplacian produces scalar by calculating horizontal and vertical second derivatives and adding together (Equation~\ref{eq:laplacian}). 
 
 \begin{equation}
 \nabla^2 f(x,y) = \frac{\partial^2 f(x,y)}{\partial x^2} + \frac{\partial^2 f(x,y)}{\partial y^2}
@@ -50,44 +50,44 @@ If there is a change, edge pixels receive amplified brightness values. Along wit
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_111.png}
-  \caption{second derivative operator}\label{fig:408}
+  \caption{second derivative operator}\label{fig:404}
 \end{figure}
 
-Laplacian values are selected to represent second derivative, making it vulnurable to detect noise spike as real object edge. Therefore, gaussian is used together with laplacian to remove such noise from image, also called mexican hat operator (Figure~\ref{fig:409}).
+Laplacian values are selected to represent second derivative, making it vulnurable to detect noise spike as real object edge. Therefore, gaussian is used together with laplacian to remove such noise from image, also called mexican hat operator (Figure~\ref{fig:405}).
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_112.png}
-  \caption{second derivative operator}\label{fig:409}
+  \caption{second derivative operator}\label{fig:405}
 \end{figure}
 
-There are simplier methods to manipulate images are based on pixel intensity values distribution. Histogram tells how much pixels from 0 (dark) to 255 (bright) are contained in image, equivalently histogram provides high level summary of image based on frequency of each brightness value in image. If image histogram truns out to be bipolar with 2 dominant peaks (a lot of bright and dark pixels), then simple tresholding could be used to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:404}).
+There are simplier methods to manipulate images are based on pixel intensity values distribution. Histogram tells how much pixels from 0 (dark) to 255 (bright) are contained in image, equivalently histogram provides high level summary of image based on frequency of each brightness value in image. If image histogram truns out to be bipolar with 2 dominant peaks (a lot of bright and dark pixels), then simple tresholding could be used to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:406}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_104.png}
-  \caption{image histogram}\label{fig:404}
+  \caption{image histogram}\label{fig:406}
 \end{figure}
 
 Another method of histogram modification is contrast enhancement that can be achieved with transfer functions and histogram equalization. 
 
 Contrast is how well spread intensity values are in image, which is connected to how human eye perceives surroundings. If image is bright everywhere, it is difficiult to see tiny details, as well as in complete dark image. In low contrast image histogram brightness values are clustered in a narrow range like most between 200-210 intensity levels, while other before and after this cluster are not used well. Thus, transfer function can be designed to spread out this narrow range to 0-255.
 
-More formally, transfer function $T$ maps input intensity $r$ to output $s = T(r)$. Slope thus is multiplier of differences between pixel values. Where slope $>1$, input intensity range is stretched to wider output range and contrast increases. Where slope $<1$, range is compressed and contrast decreases (Figure~\ref{fig:405}). 
+More formally, transfer function $T$ maps input intensity $r$ to output $s = T(r)$. Slope thus is multiplier of differences between pixel values. Where slope $>1$, input intensity range is stretched to wider output range and contrast increases. Where slope $<1$, range is compressed and contrast decreases (Figure~\ref{fig:407}). 
 
-Gamma correction function uses exactly this principle. It is non linear transfer function to improve contrast in specific intensity range while compressing others. Output value is $s=g(x,y)$, input value is $r=f(x,y)$ which is original intensity value of pixel. Transfer function is $T[f(x,y)] = (f(x,y))^p$ applied to normalized pixel values in $[0, 1]$ range, where exponent $p$ determines shape of curve (Figure~\ref{fig:405}). If, for example, $p = 1$, $T$ is identity function with slope 1 everywhere, no change occurs. Only change in Matlab is naming convention $\gamma$ instead of $p$.
+Gamma correction function uses exactly this principle. It is non linear transfer function to improve contrast in specific intensity range while compressing others. Output value is $s=g(x,y)$, input value is $r=f(x,y)$ which is original intensity value of pixel. Transfer function is $T[f(x,y)] = (f(x,y))^p$ applied to normalized pixel values in $[0, 1]$ range, where exponent $p$ determines shape of curve (Figure~\ref{fig:407}). If, for example, $p = 1$, $T$ is identity function with slope 1 everywhere, no change occurs. Only change in Matlab is naming convention $\gamma$ instead of $p$.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_106.png}
-  \caption{transfer function and gamma correction}\label{fig:405}
+  \caption{transfer function and gamma correction}\label{fig:407}
 \end{figure}
 
-In probability density function $p_r(r)$ (chance of each brightness value occurance) total area under curve is always 1 because it represents all pixel intensity values. If section is stretched by slope $> 1$, width increases so height must decrease to keep area same. If compressed by slope $<1$, width decreases and height increases (Figure~\ref{fig:406}).
+In probability density function $p_r(r)$ (chance of each brightness value occurance) total area under curve is always 1 because it represents all pixel intensity values. If section is stretched by slope $> 1$, width increases so height must decrease to keep area same. If compressed by slope $<1$, width decreases and height increases (Figure~\ref{fig:408}).
 
 Histogram equalization achieves best possible contrast in image by using image intensity values histogram $p_r(r)$ to calculate custom transfer function that makes output histogram flat in density $p_s(s)$, equivalently uniform distribution with equal prbability of each intensity level occcuring. Cumulative distribution function needs to be applied as intensity transfer function. In continious case with infinitely many brightness leveks this is integration of $p_r(r)$. 
 
 \begin{figure}[H]
   \includegraphics[width=0.46\textwidth]{image_108.png}\hspace{4pt}
   \includegraphics[width=0.50\textwidth]{image_109.png}
-  \caption{continious histogram equalization}\label{fig:406}
+  \caption{continious histogram equalization}\label{fig:408}
 \end{figure}
 
 For discrete 8-bit image with $L = 256$ gray levels, integration is replaced by discrete summation. Relative frequency of each intensity level $k$ is $p_r(r_k) = \frac{n_k}{n}$, where $n$ is total number of pixels and $n_k$ is number of occurrences of specific gray level $k$. Running sum of these probabilities gives each intensity level $k$ new rank (Equation~\ref{eq:histeq}).
@@ -97,27 +97,27 @@ s_k = T(r_k) = \sum_{i=0}^{k} p_r(r_i) = \sum_{i=0}^{k} \frac{n_i}{n}
 \label{eq:histeq}
 \end{equation}
 
-Simple example of discrete histogram equalization for 8-bit image with 0-255 grey levels (Figure~\ref{fig:407}). Exactly such algorithm I used in lab. 
+Simple example of discrete histogram equalization for 8-bit image with 0-255 grey levels (Figure~\ref{fig:409}). Exactly such algorithm I used in lab. 
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_110.png}
-  \caption{discrete histogram equalization example}\label{fig:407}
+  \caption{discrete histogram equalization example}\label{fig:409}
 \end{figure}
 
 Color models used in the labs 4 and 5 will be briefly described where used, because this is not main focus of the lab. Main idea is how brightness (luminance) channel is extracted, because it contains all required high frequency details.
 
 \subsection{Laboratory 4 -- Perform the following procedure of a automatic histogram equalisation:}
 
-I wrote custom functions to perform histogram equalization based on the described theory and example on Figure~\ref{fig:407}.
+I wrote custom functions to perform histogram equalization based on the described theory and example on Figure~\ref{fig:409}.
 
 \subsubsection{(a) build a histogram of the pixel values}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_51.jpg}
-  \caption{histogram of pout.gif pixel values}\label{fig:408}
+  \caption{histogram of pout.gif pixel values}\label{fig:410}
 \end{figure}
 
-First of all I store image as 1 dimensional array of brightness values to compute histogram based on their frequency (count). Output on Figure~\ref{fig:408} shows that most pixel values are largely concentrated between 70-150 intensity values range, which indicates poor contrast. As already mentioned in theoretical intoduction, values cluttered need to be spread out through whole 0 to 255 value range with enough space inbetween to produce a better image contrast.
+First of all I store image as 1 dimensional array of brightness values to compute histogram based on their frequency (count). Output on Figure~\ref{fig:410} shows that most pixel values are largely concentrated between 70-150 intensity values range, which indicates poor contrast. As already mentioned in theoretical intoduction, values cluttered need to be spread out through whole 0 to 255 value range with enough space inbetween to produce a better image contrast.
 
 \codeused
 \begin{matlab}
@@ -154,7 +154,7 @@ end
 
 \subsubsection{(c) normalise this cumulative sum to the max. pixel value}
 
-Normalize calculated vector by dividing cumulative sum by its last value $cumulative(256)$ which equals total number of pixels. Result is 256 element vector with values from 0 to 1, which is exactly the cumulative distribution function $s_k = T(r_k)$ from Equation~\ref{eq:histeq}. Output on Figure~\ref{fig:409} shows that normalized cumulative sum is a very steep transfer function (will be used as lookup table) that maps cluttered 70-150 intensities value range to 0-1 taking all that range on $y$ axis.
+Normalize calculated vector by dividing cumulative sum by its last value $cumulative(256)$ which equals total number of pixels. Result is 256 element vector with values from 0 to 1, which is exactly the cumulative distribution function $s_k = T(r_k)$ from Equation~\ref{eq:histeq}. Output on Figure~\ref{fig:411} shows that normalized cumulative sum is a very steep transfer function (will be used as lookup table) that maps cluttered 70-150 intensities value range to 0-1 taking all that range on $y$ axis.
 
 \codeused
 \begin{matlab}
@@ -166,21 +166,21 @@ figure; plot(0:255, normalized); title('cumulative sum of histogram');
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_52.jpg}
-  \caption{normalized cumulative sum of histogram}\label{fig:409}
+  \caption{normalized cumulative sum of histogram}\label{fig:411}
 \end{figure}
 
 \subsubsection{(d) use this as a mapping from old-new pixel values (lookup-table)}
 
 For each pixel in image, old pixel value is used as index into normalized cumulative sum, and result is multiplied by 255 to get new pixel value. For example, pixel with old value 107 looks up {normalized(108) = 0.31}, multiplied by 255 this gives new value 79. 
 
-Output on Figure~\ref{fig:410} shows resulting resulting output (mapping) vector. These are values of equalized image flattened 1 dimensional vector.
+Output on Figure~\ref{fig:412} shows resulting resulting output (mapping) vector. These are values of equalized image flattened 1 dimensional vector.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_114.png}
-  \caption{resulting vector that performs mapping and scaling by 255}\label{fig:410}
+  \caption{resulting vector that performs mapping and scaling by 255}\label{fig:412}
 \end{figure}
 
-This is exactly what I explained with example of discrete histogram equalization from Figure~\ref{fig:407}, where running sum stretches cluttered intensity region by creating gaps between mapped values.
+This is exactly what I explained with example of discrete histogram equalization from Figure~\ref{fig:409}, where running sum stretches cluttered intensity region by creating gaps between mapped values.
 
 \codeused
 \begin{matlab}
@@ -199,20 +199,20 @@ end
 
 \subsubsection{(e) Test your algorithm on pout.gif show the original picture as well both histograms and the resulting picture.}
 
-Resulting output vector is reshaped back to original image dimensions $291$ * $240$ (Figure~\ref{fig:411}). 
+Resulting output vector is reshaped back to original image dimensions $291$ * $240$ (Figure~\ref{fig:413}). 
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_116.png}
-  \caption{reshaped equalized vector}\label{fig:411}
+  \caption{reshaped equalized vector}\label{fig:413}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_53.jpg}\hspace{4pt}
   \includegraphics[width=0.48\textwidth]{image_54.jpg}
-  \caption{equalized image and histogram comparison}\label{fig:40}
+  \caption{equalized image and histogram comparison}\label{fig:414}
 \end{figure}
 
-Figure~\ref{fig:40} shows that equalized image has visibly better contrast, with both person (main object) and background having much more distinct details. Original histogram has two clustered peaks, while equalized histogram is spread across full 0-255 range with multiple peaks as expected from cumulative sum transfer function.
+Figure~\ref{fig:414} shows that equalized image has visibly better contrast, with both person (main object) and background having much more distinct details. Original histogram has two clustered peaks, while equalized histogram is spread across full 0-255 range with multiple peaks as expected from cumulative sum transfer function.
 
 \codeused
 \begin{matlab}
@@ -246,9 +246,9 @@ subplot(1,2,2); imshow(matlab); title('histeq');
 
 \subsection{Laboratory 4 -- Built your own gamma-correction function by using the template gctemp.m:}
 
-In template $1/\gamma$ is used as exponent instead of $\gamma$ or $p$ that I used in theoretical introduction for transfer function (Figure~\ref{fig:405}). With $\gamma = 0.5$ function uses $r^{1/0.5} = r^2$ which compresses dark region details into tighter range. So, smaller $\gamma$ leads to increase of contrast for brighter image regions. When transfer function maps values outside of $[0, 255]$ range, output is clipped to boundary value 0 or 255. Instead of histogram equalization template also performs intensity values range contained in image linear stretching with Matlab stretchlim function \footnote{\url{https://www.mathworks.com/help/images/ref/stretchlim.html}}, so that it occupies full range between 0 and 1. For example, if image does not contain any intensity values below 100, it is a wasted area that can be occupied for better contrast.
+In template $1/\gamma$ is used as exponent instead of $\gamma$ or $p$ that I used in theoretical introduction for transfer function (Figure~\ref{fig:407}). With $\gamma = 0.5$ function uses $r^{1/0.5} = r^2$ which compresses dark region details into tighter range. So, smaller $\gamma$ leads to increase of contrast for brighter image regions. When transfer function maps values outside of $[0, 255]$ range, output is clipped to boundary value 0 or 255. Instead of histogram equalization template also performs intensity values range contained in image linear stretching with Matlab stretchlim function \footnote{\url{https://www.mathworks.com/help/images/ref/stretchlim.html}}, so that it occupies full range between 0 and 1. For example, if image does not contain any intensity values below 100, it is a wasted area that can be occupied for better contrast.
 
-\codeused
+\templateused
 \begin{matlab}
 function gctemp(image_path)
     function img_adj = myadjust(img, gamma)
@@ -334,29 +334,29 @@ Histogram of image with coin is bipolar with 2 clear peaks of intensity values, 
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_60.jpg}
-  \caption{gamma correction on adler.jpg}\label{fig:419}
+  \caption{gamma correction on adler.jpg}\label{fig:418}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_61.jpg}
-  \caption{gamma correction with contrast stretch on adler.jpg}\label{fig:420}
+  \caption{gamma correction with contrast stretch on adler.jpg}\label{fig:419}
 \end{figure}
 
-Output on Figure~\ref{fig:419} and Figure~\ref{fig:420} confirms that stretching did not improve result significantly, slightly improved contrast of the coin details. More important is effect with smaller $\gamma$ = 0.5, after which background gets compressed to a very narrow intesity value range after transfer function applied, and is mostly black, while details on coin are preserved (makes sense, since it is very bright). Even better effect is later on achieved with tresholding.
+Output on Figure~\ref{fig:418} and Figure~\ref{fig:419} confirms that stretching did not improve result significantly, slightly improved contrast of the coin details. More important is effect with smaller $\gamma$ = 0.5, after which background gets compressed to a very narrow intesity value range after transfer function applied, and is mostly black, while details on coin are preserved (makes sense, since it is very bright). Even better effect is later on achieved with tresholding.
 
 Church image looks very dark originally, suggesting that most bright values in image histogram are not occupied. Thus, similarly to image of person, intensities stretching helps significantly. Gamma correction applied just to raw image is also not meaningful.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_58.jpg}
-  \caption{gamma correction on church2.png}\label{fig:418}
+  \caption{gamma correction on church2.png}\label{fig:420}
 \end{figure}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_59.jpg}
-  \caption{gamma correction with contrast stretch on church2.png}\label{fig:419}
+  \caption{gamma correction with contrast stretch on church2.png}\label{fig:421}
 \end{figure}
 
-Output on Figures~\ref{fig:418} and Figure~\ref{fig:419} confirms that, following exactly same behaviour as observed with image of a person.
+Output on Figures~\ref{fig:420} and Figure~\ref{fig:421} confirms that, following exactly same behaviour as observed with image of a person.
 
 \codeused
 \begin{matlab}
@@ -383,10 +383,10 @@ Second, is that image looks very grey, suggesting that histogram equalization is
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_62.jpg}
-  \caption{original, mean filter, and median filter}\label{fig:421}
+  \caption{original, mean filter, and median filter}\label{fig:422}
 \end{figure}
 
-As can be seen on output of Figure~\ref{fig:421} median filtering with 3 by 3 kernel perfectly removed all noise spikes completely without blurring membranes edges. This is exactly what expected, because if in 3 by 3 neighborhood 8 pixels have intensity value of 10 and only 1 spike has 255, median is 10, so 255 is completely removed and replaced with 10. Average kernel instead failed to remove such bright spikes only slightly averaging them out.  
+As can be seen on output of Figure~\ref{fig:422} median filtering with 3 by 3 kernel perfectly removed all noise spikes completely without blurring membranes edges. This is exactly what expected, because if in 3 by 3 neighborhood 8 pixels have intensity value of 10 and only 1 spike has 255, median is 10, so 255 is completely removed and replaced with 10. Average kernel instead failed to remove such bright spikes only slightly averaging them out.  
 
 \codeused
 \begin{matlab}
@@ -428,10 +428,10 @@ end
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_63.jpg}
-  \caption{histogram equalization applied after filtering}\label{fig:422}
+  \caption{histogram equalization applied after filtering}\label{fig:423}
 \end{figure}
 
-Figure~\ref{fig:422} shows the result of applied histogram equalization on a raw image as well as filtered with both kernels. Spreading out cluttered pixel intesnities values across 0-255 range helped, significantly imporving contrast of background and membranes structure. Median kernel applied before histogram equalization applied produces best result without any noise with very good contrast.
+Figure~\ref{fig:423} shows the result of applied histogram equalization on a raw image as well as filtered with both kernels. Spreading out cluttered pixel intesnities values across 0-255 range helped, significantly imporving contrast of background and membranes structure. Median kernel applied before histogram equalization applied produces best result without any noise with very good contrast.
 
 \codeused
 \begin{matlab}
@@ -459,10 +459,10 @@ end
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_64.jpg}
-  \caption{edge detection with laplacian and LoG before equalization}\label{fig:423}
+  \caption{edge detection with laplacian and LoG before equalization}\label{fig:424}
 \end{figure}
 
-For the edge detection I used laplacian and laplacian of gaussian discussed in theoretical introduction to highlight edges better. However a lot of tiny details on membrane, which are high frequency changes, distracted Laplacian and result is overamplified details across all image, not edges as I wanted (Figure~\ref{fig:423}). Gaussian applied before laplacian helps by smoothing such tiny details in membranes, producing more or less what is desired. As discuseed earlier, gaussian as expected does not ruin membranes edges before laplacian is applied because of weighting central pixel of kernel window more.
+For the edge detection I used laplacian and laplacian of gaussian discussed in theoretical introduction to highlight edges better. However a lot of tiny details on membrane, which are high frequency changes, distracted Laplacian and result is overamplified details across all image, not edges as I wanted (Figure~\ref{fig:424}). Gaussian applied before laplacian helps by smoothing such tiny details in membranes, producing more or less what is desired. As discuseed earlier, gaussian as expected does not ruin membranes edges before laplacian is applied because of weighting central pixel of kernel window more.
 
 \codeused
 \begin{matlab}
@@ -523,12 +523,12 @@ subplot(4, 3, 8); imshow(histogram_equalization(cells_log)); title('median, log,
 
 \subsection{Laboratory 4 -- Manipulate the following picture adler.jpg}
 
-Given bright coin on a dark backround picture (Figure~\ref{fig:424}) is a perfect example of method to manipulate image based on pixel intensity values bipolar histogram with 2 dominant peaks (a lot of bright and dark pixels). Simple tresholding must be used between peaks in well separated region to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:404}).
+Given bright coin on a dark backround picture (Figure~\ref{fig:425}) is a perfect example of method to manipulate image based on pixel intensity values bipolar histogram with 2 dominant peaks (a lot of bright and dark pixels). Simple tresholding must be used between peaks in well separated region to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:406}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_65.jpg}\vspace{4pt}
   \includegraphics[width=0.34\textwidth]{image_117.png}
-  \caption{adler.jpg original and pixel histogram}\label{fig:424}
+  \caption{adler.jpg original and pixel histogram}\label{fig:425}
 \end{figure}
 
 \codeused
@@ -542,14 +542,14 @@ subplot(1, 2, 2); bar(0:255, histcounts(adler(:), 0:256)); title('histogram');
 
 \subsubsection{(a) so that the background has only one colour without disturbing the coin}
 
-First I select treshold value of 150 arbitary between peaks in intensity values on histogram (Figure~\ref{fig:424}). Pixels of the left peak are background pixels, because their intensity value is low. Thus, for all pixels below treshold assign value 0 = Black.
+First I select treshold value of 150 arbitary between peaks in intensity values on histogram (Figure~\ref{fig:425}). Pixels of the left peak are background pixels, because their intensity value is low. Thus, for all pixels below treshold assign value 0 = Black.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_66.jpg}
-  \caption{adler.jpg thresholding}\label{fig:425}
+  \caption{adler.jpg thresholding}\label{fig:426}
 \end{figure}
 
-Based on output on Figure~\ref{fig:425} coin attains all details and contrast unotuched, while background now is completely black.
+Based on output on Figure~\ref{fig:426} coin attains all details and contrast unotuched, while background now is completely black.
 
 \codeused
 \begin{matlab}
@@ -566,10 +566,10 @@ With coin being 1 color easier to assign 255 = White value to bright pixels peak
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_66.jpg}
-  \caption{adler.jpg thresholding}\label{fig:426}
+  \caption{adler.jpg thresholding}\label{fig:427}
 \end{figure}
 
-Based on output on Figure~\ref{fig:426} background attains all details and contrast unotuched, while all coin pixels now are completely bright or white.
+Based on output on Figure~\ref{fig:427} background attains all details and contrast unotuched, while all coin pixels now are completely bright or white.
 
 \codeused
 \begin{matlab}
@@ -583,10 +583,10 @@ I used HSV color model (NB: worked better with this image then rgb2ycbcr with gr
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_67.jpg}
-  \caption{HSV color model based histogram equalization on church2.png}\label{fig:427}
+  \caption{HSV color model based histogram equalization on church2.png}\label{fig:428}
 \end{figure}
 
-Output on Figure~\ref{fig:427} shows extremely good result with even dark grass getting enough contrast. My assumption is that given image is just artifically darkened with pixel intinsities range compressed to a narrow. Thus, once equalization spreads them out, result is perfect.
+Output on Figure~\ref{fig:428} shows extremely good result with even dark grass getting enough contrast. My assumption is that given image is just artifically darkened with pixel intinsities range compressed to a narrow. Thus, once equalization spreads them out, result is perfect.
 
 \codeused
 \begin{matlab}
