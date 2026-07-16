@@ -37,7 +37,7 @@ Another kernels that I use in the lab 4 are median, laplacian, gaussian, and com
 
 Gaussian kernel is better version of mean window, because it gives more weight towards center pixel and direct neighborhood pixels. For example, in 3 by 3 kernel corner pixels receive weight = 1. This also helps to preserve object shape and edges better. Weight is controlled by $\sigma$ variable (Figure~\ref{fig:409}), such that smaller $\sigma$ results in more weight towards central pixel of convolution mask, and less towards neighborhood.
 
-Median kernel replaces current center pixel with median value across its neighborhood. It is better than mean for noise reduction, because it removes small spikes caused by some reflections like stars on sky without blurring object edges so much as average does.
+Median kernel replaces current center pixel with median value across its neighborhood. It is better than mean for noise reduction, because it removes small spikes caused by some reflections like stars on sky without blurring object edges so much as average does. 
 
 Laplacian uses kernel values to determine image gradient in pixel intensity values in $x$ and $y$ direction (Figure~\ref{fig:408}). Instead of gradient vector $\nabla f(x,y) = g_x(x,y), \; g_y(x,y)$ that stores change in $x$ and $y$ directions separately, laplacian produces scalar by calculating horizontal and vertical second derivatives and adding together (Equation~\ref{eq:laplacian}). 
 
@@ -235,7 +235,7 @@ end
   \caption{custom equalization vs matlab histeq}\label{fig:415}
 \end{figure}
 
-Figure~\ref{fig:415} shows that custom equalization and Matlab histeq function produce almost similar results visually with small differences based on how histeq is implemented.
+Figure~\ref{fig:415} shows that custom equalization and Matlab histeq function produce almost similar results visually. 
 
 \codeused
 \begin{matlab}
@@ -246,35 +246,91 @@ subplot(1,2,2); imshow(matlab); title('histeq');
 
 \subsection{Laboratory 4 -- Built your own gamma-correction function by using the template gctemp.m:}
 
-$1/\gamma$ is used as exponent instead of $\gamma$, so with $\gamma = 0.5$ function uses $r^{1/0.5} = r^2$ which makes image darker. When transfer function maps values outside of $[0, 255]$ range, output is clipped to boundary value 0 or 255.
+In template $1/\gamma$ is used as exponent instead of $\gamma$ or $p$ that I used in theoretical introduction for transfer function (Figure~\ref{fig:405}). With $\gamma = 0.5$ function uses $r^{1/0.5} = r^2$ which compresses dark region details into tighter range. So, smaller $\gamma$ leads to increase of contrast for brighter image regions. When transfer function maps values outside of $[0, 255]$ range, output is clipped to boundary value 0 or 255. Instead of histogram equalization template also performs intensity values range contained in image linear stretching with Matlab stretchlim function \footnote{\url{https://www.mathworks.com/help/images/ref/stretchlim.html}}, so that it occupies full range between 0 and 1. For example, if image does not contain any intensity values below 100, it is a wasted area that can be occupied for better contrast.
 
+\codeused
+\begin{matlab}
+function gctemp(image_path)
+    function img_adj = myadjust(img, gamma)
+        img_adj = img;
+        % gamma correction
+        img_adj = img_adj .^ 1/gamma;
+    end
+    ...
+    function update()
+        % without contrast stretch
+        img_adj = myadjust(img, gamma);
+        % with contrast stretch using stretchlim - CLIPPING!
+        img_ref = imadjust(img, stretchlim(img), [0 1], gamma);
+        ...
+    end
+    ...
+end
+\end{matlab}
 
+I implemented 2 similar function according to template. First is basic gamma correction applied to image received in [0, 255] intensity value range. Second is doing stretching of intensity values to full [0, 1] range before applying gamma correction. 
+
+Only difficulty was to implement stretchlim functionality that template uses with reference to Mathworks \footnote{\url{https://www.mathworks.com/help/images/ref/stretchlim.html}}. 
+
+It is difficult to include both my function output and template, because to use template I need to make a call, and cannot view result in livescript output near plots of custom function. But based on my visual comparison results are identical, and $1/\gamma$ exponent in transfer function performs exactly as expected.
+
+\codeused
+\begin{matlab}
+function output = gc(image, gamma)
+    % normalize to [0, 1] range
+    normalized = double(image) / 255;
+    % apply gamma -> in script gamma >1 curve below 45 degree line darkens
+    % image, however in template 1/gamma is used, thus to match behavior
+    % for comparison..
+    corrected = normalized .^ (1 / gamma);
+    % back to [0, 255] range
+    output = uint8(corrected * 255);
+end
+% template uses stretchlim(img) before applying gamma correction, makes
+% contrast better, spreads out intensity values
+% By default, the limits specify the bottom 1% and the top 1% of all pixel values.
+% https://www.mathworks.com/help/images/ref/stretchlim.html
+function output = gc_stretch(image, gamma)
+    % normalize to [0, 1] range
+    normalized = double(image) / 255;
+    % contrast stretch to full [0, 1] range
+    sorted = sort(normalized(:));
+    % bottom 1% of all pixel values
+    low = sorted(round(0.01 * length(sorted)) + 1);
+    % top 1% of all pixel values
+    high = sorted(round(0.99 * length(sorted)));
+    % clip and stretch to [0, 1]
+    normalized = (normalized - low) / (high - low);
+    % clip values outside [0,1]
+    normalized = max(0, min(1, normalized));
+    % apply gamma
+    corrected = normalized .^ (1 / gamma);
+    % back to [0, 255] range
+    output = uint8(corrected * 255);
+end
+\end{matlab}
 
 \subsubsection{(a) Test the template with different gammas}
+
+From Figure~\ref{fig:416} it can be seen that original image before gamma correction applied has poor contrast and mostly grey. Stretching here is required, because transfer function applied to image directly would result in making this poor contrast image either darker or brighter, depending on selected $\gamma$ value (without actually improving image contrast).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_56.jpg}
   \caption{gamma correction on pout.gif}\label{fig:416}
 \end{figure}
 
+Output of just gamma correction applied on Figure~\ref{fig:416} confirms this, due to inverse relationship bigger $\gamma$ = 1.5 resulted in brighter, even more visually washed out image. Small $\gamma$ = 0.5 resulted in a very dark picture.
+
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_57.jpg}
   \caption{gamma correction with contrast stretch on pout.gif}\label{fig:417}
 \end{figure}
 
-TODO
+Output on Figure~\ref{fig:417} shows that stretching helped, thus there was a lot of unused intensity values in original image histogram. Bigger $\gamma$ = 1.5 also resulted in brighter image, but since contrast is much higher, there are a lot of details visible on person and on background at the same time, both got brighter. Small $\gamma$ = 0.5 is a bit harsh for this image, dark values stretched got compressed into small value range after gamma correction applied, resulting in very dark backround with almost no details. Same issue happened with dark hair of the main object.
 
 \subsubsection{(b) as well with different pictures}
 
-\begin{figure}[H]
-  \includegraphics[width=0.6\textwidth]{image_58.jpg}
-  \caption{gamma correction on church2.png}\label{fig:418}
-\end{figure}
-
-\begin{figure}[H]
-  \includegraphics[width=0.6\textwidth]{image_59.jpg}
-  \caption{gamma correction with contrast stretch on church2.png}\label{fig:45}
-\end{figure}
+Histogram of image with coin is bipolar with 2 clear peaks of intensity values, thus stretching is not that useful here.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_60.jpg}
@@ -286,9 +342,42 @@ TODO
   \caption{gamma correction with contrast stretch on adler.jpg}\label{fig:420}
 \end{figure}
 
-TODO
+Output on Figure~\ref{fig:419} and Figure~\ref{fig:420} confirms that stretching did not improve result significantly, slightly improved contrast of the coin details. More important is effect with smaller $\gamma$ = 0.5, after which background gets compressed to a very narrow intesity value range after transfer function applied, and is mostly black, while details on coin are preserved (makes sense, since it is very bright). Even better effect is later on achieved with tresholding.
+
+Church image looks very dark originally, suggesting that most bright values in image histogram are not occupied. Thus, similarly to image of person, intensities stretching helps significantly. Gamma correction applied just to raw image is also not meaningful.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_58.jpg}
+  \caption{gamma correction on church2.png}\label{fig:418}
+\end{figure}
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_59.jpg}
+  \caption{gamma correction with contrast stretch on church2.png}\label{fig:419}
+\end{figure}
+
+Output on Figures~\ref{fig:418} and Figure~\ref{fig:419} confirms that, following exactly same behaviour as observed with image of a person.
+
+\codeused
+\begin{matlab}
+figure
+subplot(2, 3, 1); imshow(church); title('original'); subplot(2, 3, 2); imshow(gc(church, 1.5)); title('gamma = 1.5'); subplot(2, 3, 3); imshow(gc(church, 0.5)); title('gamma = 0.5');
+subplot(2, 3, 4); imshow(church); title('original'); subplot(2, 3, 5); imshow(gc_stretch(church, 1.5)); title('stretch gamma = 1.5'); subplot(2, 3, 6); imshow(gc_stretch(church, 0.5)); title('stretch gamma = 0.5');
+
+figure
+subplot(2, 3, 1); imshow(adler); title('original'); subplot(2, 3, 2); imshow(gc(adler, 1.5)); title('gamma = 1.5'); subplot(2, 3, 3); imshow(gc(adler, 0.5)); title('gamma = 0.5');
+subplot(2, 3, 4); imshow(adler); title('original'); subplot(2, 3, 5); imshow(gc_stretch(adler, 1.5)); title('stretch gamma = 1.5'); subplot(2, 3, 6); imshow(gc_stretch(adler, 0.5)); title('stretch gamma = 0.5');
+end
+\end{matlab}
+
 
 \subsection{Laboratory 4 -- Perform different techniques on lowandsp.gif}
+
+Membranes image as already discussed seems to have 2 major problems. 
+
+First is noise spikes, that can be removed by convolution with 2 dimensional image filter. Since the goal is to preserve edges content, and noise is rare high frequency spikes, median 3 by 3 window would be a best approach. Mean would blur out edges and since noise spikes are rare very bright dots, their effect can be averaged and reduced, but not completely removed. This is exactly noise spike distortion pattern, as shown as example for median filtering on Mathworks \footnote{\url{https://www.mathworks.com/help/images/ref/medfilt2.html}}. In my median filter function I handle boundary pixels by skipping them, loop starts at (1 + edge) and ends at (rows - edge) so border pixels stay 0, since imfilt = zeros(rows, cols) initializes output as all zeros, so bounary pixels are never touched.
+
+Second, is that image looks very grey, suggesting that histogram equalization is required to spread out intensity values and improve contrast, so that later on edges can be meaningfully amplified using Laplace operator.
 
 \subsubsection{(a) to be finally able to highlight only the membranes and structures of the cells}
 
@@ -297,43 +386,202 @@ TODO
   \caption{original, mean filter, and median filter}\label{fig:421}
 \end{figure}
 
+As can be seen on output of Figure~\ref{fig:421} median filtering with 3 by 3 kernel perfectly removed all noise spikes completely without blurring membranes edges. This is exactly what expected, because if in 3 by 3 neighborhood 8 pixels have intensity value of 10 and only 1 spike has 255, median is 10, so 255 is completely removed and replaced with 10. Average kernel instead failed to remove such bright spikes only slightly averaging them out.  
+
+\codeused
+\begin{matlab}
+cells = imread('lowandsp.gif');
+% mean kernel for filtering
+function imfilt = mean_filter(im, n)
+    h = (1 / n) * ones(n, 1);
+    H = h * h';
+    % conv2 needs double
+    % uint8 would clip fractional values during averaging
+    imfilt = conv2(double(im), H, 'same');
+    % convert back to uint8 to display
+    imfilt = uint8(imfilt);
+end
+% median kernel for filtering 
+function median = get_median(kernel)
+    % sort values for median
+    sorted = sort(kernel(:));
+    % for 3 by 3 kernel ceil(9/2) = 5th vakue middle 
+    % [1 2 3 4 -> 5th 6 7 8 9]
+    n = length(sorted);
+    median = sorted(ceil(n / 2));
+end
+function imfilt = median_filter(im, n)
+    [rows, cols] = size(im);
+    % INITIALIZE WITH ZEROS!
+    imfilt = zeros(rows, cols);
+    edge = floor(n / 2);
+    % SKIP BOUNADRY PIXELS!
+    for x = 1+edge:rows-edge
+        for y = 1+edge:cols-edge
+            kernel = im(x-edge:x+edge, y-edge:y+edge);
+            imfilt(x, y) = get_median(double(kernel));
+        end
+    end
+    imfilt = uint8(imfilt);
+end
+\end{matlab}
+
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_63.jpg}
   \caption{histogram equalization applied after filtering}\label{fig:422}
 \end{figure}
 
+Figure~\ref{fig:422} shows the result of applied histogram equalization on a raw image as well as filtered with both kernels. Spreading out cluttered pixel intesnities values across 0-255 range helped, significantly imporving contrast of background and membranes structure. Median kernel applied before histogram equalization applied produces best result without any noise with very good contrast.
+
+\codeused
+\begin{matlab}
+% just reuse equlization algortihm written from (a) to (d)
+function image_equalization = histogram_equalization(im)
+    image = im(:);
+    histogram = zeros(1, 256);
+    for idx = 1:length(image)
+        histogram(image(idx) + 1) = histogram(image(idx) + 1) + 1;
+    end
+    cumulative = zeros(1, 256);
+    cumulative(1) = histogram(1);
+    for k = 2:256
+        cumulative(k) = cumulative(k - 1) + histogram(k);
+    end
+    normalized = cumulative / cumulative(256);
+    output = image;
+    for k = 1:length(image)
+        old_pixel = image(k);
+        output(k) = normalized(old_pixel + 1) * 255;
+    end
+    image_equalization = uint8(reshape(output, size(im)));
+end
+\end{matlab}
+
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_64.jpg}
-  \caption{edge detection with laplacian and LoG after equalization}\label{fig:423}
+  \caption{edge detection with laplacian and LoG before equalization}\label{fig:423}
 \end{figure}
 
-TODO
+For the edge detection I used laplacian and laplacian of gaussian discussed in theoretical introduction to highlight edges better. However a lot of tiny details on membrane, which are high frequency changes, distracted Laplacian and result is overamplified details across all image, not edges as I wanted (Figure~\ref{fig:423}). Gaussian applied before laplacian helps by smoothing such tiny details in membranes, producing more or less what is desired. As discuseed earlier, gaussian as expected does not ruin membranes edges before laplacian is applied because of weighting central pixel of kernel window more.
+
+\codeused
+\begin{matlab}
+% laplacian for edge detection -> too sharpy
+function imfilt = laplacian_filter(im)
+    H = [0 1 0; 1 -4 1; 0 1 0];
+    [rows, cols] = size(im);
+    imfilt = zeros(rows, cols);
+    for x = 2:rows-1
+        for y = 2:cols-1
+            imfilt(x, y) = sum(sum(double(im(x-1:x+1, y-1:y+1)) .* H));
+        end
+    end
+    imfilt = abs(imfilt);
+    imfilt = imfilt / max(imfilt(:)) * 255;
+    imfilt = uint8(imfilt);
+end
+% laplacian of gaussian, so only important edges are highlited
+function imfilt = log_filter(im, n, sigma)
+    % gaussian filter
+    G = zeros(n, n);
+    center = floor(n / 2) + 1;
+    for x = 1:n
+        for y = 1:n
+            G(x, y) = exp(-((x - center)^2 + (y - center)^2) / (2 * sigma^2));
+        end
+    end
+    % K can be ignored to achieve amplification factor of 1 for DC, 
+    % sum of coefficients must be equal to 1 -> normalize (eq 5.15)
+    G = G / sum(G(:));
+    smoothed = conv2(double(im), G, 'same');
+    % laplacian filter -> pure high pass to highlight details and edges
+    L = [0 1 0; 1 -4 1; 0 1 0];
+    % conv2 does zero padding with 'same' parameter
+    imfilt = conv2(smoothed, L, 'same');
+    imfilt = abs(imfilt);
+    imfilt = imfilt / max(imfilt(:)) * 255;
+    imfilt = uint8(imfilt);
+end
+% filtered with mean kernel
+cells_mean = mean_filter(cells, 3);
+% filtered with median kernel
+cells_median = median_filter(cells, 3);
+% filtered with median and after laplacian applied
+cells_lap = laplacian_filter(cells_median);
+% filtered with median and after LoG applied
+cells_log = log_filter(cells_median, 5, 1);
+...
+subplot(4, 3, 1); imshow(cells); title('original');
+subplot(4, 3, 2); imshow(cells_mean); title('mean 3 by 3 kernel');
+subplot(4, 3, 3); imshow(cells_median); title('median 3 by 3 kernel');
+subplot(4, 3, 4); imshow(histogram_equalization(cells)); title('histogram equalization only');
+subplot(4, 3, 5); imshow(histogram_equalization(cells_mean)); title('mean, histeq');
+subplot(4, 3, 6); imshow(histogram_equalization(cells_median)); title('median, histeq');
+subplot(4, 3, 7); imshow(histogram_equalization(cells_lap)); title('median, lap, eq');
+subplot(4, 3, 8); imshow(histogram_equalization(cells_log)); title('median, log, eq');
+\end{matlab}
 
 \subsection{Laboratory 4 -- Manipulate the following picture adler.jpg}
 
-\subsubsection{(a) so that the background has only one colour without disturbing the coin}
-
-TODO
-
-\subsubsection{(b) so that the coin has only one colour without disturbing the background}
+Given bright coin on a dark backround picture (Figure~\ref{fig:424}) is a perfect example of method to manipulate image based on pixel intensity values bipolar histogram with 2 dominant peaks (a lot of bright and dark pixels). Simple tresholding must be used between peaks in well separated region to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:404}).
 
 \begin{figure}[H]
-  \includegraphics[width=0.6\textwidth]{image_65.jpg}
+  \includegraphics[width=0.6\textwidth]{image_65.jpg}\vspace{4pt}
+  \includegraphics[width=0.34\textwidth]{image_117.png}
   \caption{adler.jpg original and pixel histogram}\label{fig:424}
 \end{figure}
+
+\codeused
+\begin{matlab}
+adler = imread('adler.jpg');
+% find threshold between background and coin
+figure;
+subplot(1, 2, 1); imshow(adler); title('original');
+subplot(1, 2, 2); bar(0:255, histcounts(adler(:), 0:256)); title('histogram');
+\end{matlab}
+
+\subsubsection{(a) so that the background has only one colour without disturbing the coin}
+
+First I select treshold value of 150 arbitary between peaks in intensity values on histogram (Figure~\ref{fig:424}). Pixels of the left peak are background pixels, because their intensity value is low. Thus, for all pixels below treshold assign value 0 = Black.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_66.jpg}
   \caption{adler.jpg thresholding}\label{fig:425}
 \end{figure}
 
-TODO
+Based on output on Figure~\ref{fig:425} coin attains all details and contrast unotuched, while background now is completely black.
+
+\codeused
+\begin{matlab}
+% any treshold between 120 and 200
+threshold = 150;
+% background = one colour, coin untouched
+background = adler;
+background(adler < threshold) = 0;
+\end{matlab}
+
+\subsubsection{(b) so that the coin has only one colour without disturbing the background}
+
+With coin being 1 color easier to assign 255 = White value to bright pixels peak after treshold value of 150, so that coin is clearly visually separated from background and background at the same time attains all details and contrast.
+
+\begin{figure}[H]
+  \includegraphics[width=0.6\textwidth]{image_66.jpg}
+  \caption{adler.jpg thresholding}\label{fig:426}
+\end{figure}
+
+Based on output on Figure~\ref{fig:426} background attains all details and contrast unotuched, while all coin pixels now are completely bright or white.
+
+\codeused
+\begin{matlab}
+coin = adler;
+coin(adler > threshold) = 255;
+\end{matlab}
 
 \subsection{Homework 4 (Diary only: Adapt your own histogram equalisation algorithm to perform a good result for the coloured picture church2.png)}
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_67.jpg}
-  \caption{HSVn color model based histogram equalization on church2.png}\label{fig:426}
+  \caption{HSVn color model based histogram equalization on church2.png}\label{fig:427}
 \end{figure}
 
 TODO
