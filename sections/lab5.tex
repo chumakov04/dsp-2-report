@@ -125,6 +125,8 @@ from the original
 
 \subsubsection{(a) Calculation: Using your results from Task 1 and 2, implement a simple sharpening step: \texorpdfstring{$I_{sharp} = I_{original} - \mathrm{Laplace}(I_{original})$}{Isharp = Ioriginal - Laplace(Ioriginal)}.}
 
+Since subtraction can produce values outside of [0, 255] range, max(0, min(255, sharp)) clipping is required for valid output. For example, if pixel has intensity value of 250 and output of laplace operator is $-50$ for it, $250 - (-50) = 300$, when maximum possible brightness value is 255 = White. 
+
 \codeused
 \begin{matlab}
 laplace_pep = laplace_filter(double(pep), HL);
