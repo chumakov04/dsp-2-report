@@ -1,14 +1,14 @@
 \clearpage
 \section{Lab exercise 3: Adaptive Filter Design}
 
-Main idea of adaptive filtering is to dynamically adjust filter transfer function based on the noise coming to the listener that is constanly changing in real time with signal (Figure~\ref{fig:301}). It is impossible to know noise trasnfer function in advance, it can differ. To remove noise coming mixed with true signal, noise signal must be added with a minus sign and adaptive filter transfer function must be always changed so that it cancels out real noise distortion transfer function. This way system can get as close as possible to transfer function of incoming noise and cancel it.
+Main idea of adaptive filtering is to dynamically adjust filter transfer function based on the noise coming to the listener that is constantly changing in real time with signal (Figure~\ref{fig:301}). It is impossible to know noise transfer function in advance, it can differ. To remove noise coming mixed with true signal, noise signal must be added with a minus sign and adaptive filter transfer function must be always changed so that it cancels out real noise distortion transfer function. This way system can get as close as possible to transfer function of incoming noise and cancel it.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_85.png}
   \caption{main idea of adaptive filter}\label{fig:301}
 \end{figure}
 
-To adjust filter transfer function dynamically, real time resulting signal measure and error term must be introduced, to give meaningful direction to adapt. Since noise is mostly random, it has high power $P$. Therefore, power of output signal $y$ coming out of the system must be measured, assuming that noise is stationary, equivalently constant in freqeuncy and amplitude. Adaptive filter aims to have noise interference signal $a_i$ and modelled noise by adaptive filter $b_i$ to be equal, then meaningful error is error signal $e$, which is the difference between real signal $s_i$ and output signal $y_i$ resulting from the adaptive filter (Figure~\ref{fig:302}). Error term equation is $e_i$ = $s_i$ - $y_i$.
+To adjust filter transfer function dynamically, real time resulting signal measure and error term must be introduced, to give meaningful direction to adapt. Since noise is mostly random, it has high power $P$. Therefore, power of output signal $y$ coming out of the system must be measured, assuming that noise is stationary, equivalently constant in frequency and amplitude. Adaptive filter aims to have noise interference signal $a_i$ and modelled noise by adaptive filter $b_i$ to be equal, then meaningful error is error signal $e$, which is the difference between real signal $s_i$ and output signal $y_i$ resulting from the adaptive filter (Figure~\ref{fig:302}). Error term equation is $e_i$ = $s_i$ - $y_i$.
 
 If there is no noise interference, then error term would be zero, and trivially its power $P_e$ would also be zero. If noise is present and strong, error term would be large, and its power $P_e$ would emphasize it even more because of squaring the difference term.
 
@@ -177,7 +177,7 @@ Here I will formalize initial claim about 0.001 learning (adaptation) rate being
 
 Output on Figure~\ref{fig:308} shows that slower learning rate leads to high variance, although trend towards correct values is visible. Higher adaptation rate than 0.001 clearly leads to overshoot over optimum values and divergence with FIR filter coefficients $b_0$ = $b_4$, $b_1$ = $b_3$, $b_2$ unable to converge towards interference transfer function coefficients $[0.2, 0.5, 0.8, 0.5, 0.2]$ with huge variance.
 
-Exact caclulated by adaptive filter values for coefficients $b_0$ = $b_4$, $b_1$ = $b_3$, $b_2$ are shown on Figure~\ref{fig:309}.
+Exact calculated by adaptive filter values for coefficients $b_0$ = $b_4$, $b_1$ = $b_3$, $b_2$ are shown on Figure~\ref{fig:309}.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_100.png}
@@ -206,7 +206,7 @@ end
 
 \subsection{Laboratory 3 -- Adapt your filter routine to be able to read any Wave-Soundfile where in Channel\_1 the samples of the disturbed signal and Channel\_2 the samples of the interference (noise signal) is stored.}
 
-Only change is the input signal which is real one with sound.wav file that has 2 channels. Time domain spectrum clearly shows noisy disturbed signal overlapped with intereference noise signal (Figure~\ref{fig:310}).
+Only change is the input signal which is real one with sound.wav file that has 2 channels. Time domain spectrum clearly shows noisy disturbed signal overlapped with interference noise signal (Figure~\ref{fig:310}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_101.jpg}

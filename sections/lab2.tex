@@ -1,11 +1,11 @@
 \clearpage
 \section{Lab exercise 2: Notch and Comb Filter Design}
 
-Notch filters are used to filter out specific frequency inference at $\omega_0$. Either one specific frequency imposed by some measurement device or narrow range of frequencies. Thus, notch filters are bandstop. Amplitude response has very narrow notch at frequency range to be blocked with other frequencies pass through unchanged. 
+Notch filters are used to filter out specific frequency interference at $\omega_0$. Either one specific frequency imposed by some measurement device or narrow range of frequencies. Thus, notch filters are bandstop. Amplitude response has very narrow notch at frequency range to be blocked with other frequencies pass through unchanged. 
 
 They are created with second order IIR filter designed directly from pole zero plot so that conjugate complex zero is located at that specific frequency $\omega_{0}$. Since zeros are exactly on the unit circle filter gain at $\omega_{0}$ is zero.
 
-For all other frequencies along unit circle distance from zeros and poles is roughly equal so gain is roughly 1. Conjugate complex poles are placed at the same angle but inside the unit circle at distance $r$ from origin. Pole radius $r$ controlls steepness and width of the notch. Notch becomes more steep and narrow as r approaches 1. For stability, $r < 1$ must hold (Figure~\ref{fig:201}).
+For all other frequencies along unit circle distance from zeros and poles is roughly equal so gain is roughly 1. Conjugate complex poles are placed at the same angle but inside the unit circle at distance $r$ from origin. Pole radius $r$ controls steepness and width of the notch. Notch becomes more steep and narrow as r approaches 1. For stability, $r < 1$ must hold (Figure~\ref{fig:201}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_78.png}
@@ -67,7 +67,7 @@ For $f_s = 1000$ Hz, $f_a = 10000$ Hz, $r = 0.98$ output is (Figure~\ref{fig:204
   \caption{notch filter coefficients}\label{fig:204}
 \end{figure}
 
-Figure~\ref{fig:203} shows very steep notch magnitude at 1 kHz reaching -30.18 $dB$ damping effect, which attenuates desired frequency. In pole zero map, as expected, zero is located at $\omega_0$ frequency to attenuate it with pole located almost where zero is with $r = 0.98$, this is what influences steepness of filter transition. Stability contraint is not violated $r$ < 1, thus system is stale and filter must work correctly. Phase changes at $\omega_0 = 1 kHz$ between -89 and +89 degrees because zeros on unit circle cause sign change in transfer function G(z), equivalently vector pointing to $\omega_0$ frequency passes through zero point changing its sign by 180 degrees (Figure~\ref{fig:205}).
+Figure~\ref{fig:203} shows very steep notch magnitude at 1 kHz reaching -30.18 $dB$ damping effect, which attenuates desired frequency. In pole zero map, as expected, zero is located at $\omega_0$ frequency to attenuate it with pole located almost where zero is with $r = 0.98$, this is what influences steepness of filter transition. Stability constraint is not violated $r$ < 1, thus system is stable and filter must work correctly. Phase changes at $\omega_0 = 1 kHz$ between -89 and +89 degrees because zeros on unit circle cause sign change in transfer function G(z), equivalently vector pointing to $\omega_0$ frequency passes through zero point changing its sign by 180 degrees (Figure~\ref{fig:205}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_83.png}
@@ -104,9 +104,9 @@ As can be seen from how $\omega_0$ frequency is defined for this lab (\ref{eq:w}
   \caption{same stop frequency, different sample rates}\label{fig:206}
 \end{figure}
 
-I used \hyperlink{code:notchFilter}{notchFilter} function with fixed $f_s = 1000$ Hz and sample rates $f_a = 10000$, $22050$, $44100$ Hz. Output in figure 22 shows that as expected higher sampling rate $f_a$ leads to pole and zero with their complex cojugate pair to be placed closer to the Re axis where $w$ = 0, because $\omega_0$ decreases. Phase change happens at $\omega_0$ is calculated using given formula (\ref{eq:w}).
+I used \hyperlink{code:notchFilter}{notchFilter} function with fixed $f_s = 1000$ Hz and sample rates $f_a = 10000$, $22050$, $44100$ Hz. Output in figure 22 shows that as expected higher sampling rate $f_a$ leads to pole and zero with their complex conjugate pair to be placed closer to the Re axis where $w$ = 0, because $\omega_0$ decreases. Phase change happens at $\omega_0$ is calculated using given formula (\ref{eq:w}).
 
-What also I observed is that higher sampling rate leads to a bit wider notch in magnitude spectrum, equvalently smoother transition, and more magnitude damping effect. But not significant, all 3 notches have roughly same steepness. Attenuation reaches -34 $dB$ with $f_a = 22050$, $44100$ Hz, instead of -30.18 $dB$ with $f_a = 10000$. I am not sure how this behaviour should be interpreted, as I expected change only in $\omega_0$ as ratio values change.
+What also I observed is that higher sampling rate leads to a bit wider notch in magnitude spectrum, equivalently smoother transition, and more magnitude damping effect. But not significant, all 3 notches have roughly same steepness. Attenuation reaches -34 $dB$ with $f_a = 22050$, $44100$ Hz, instead of -30.18 $dB$ with $f_a = 10000$. I am not sure how this behaviour should be interpreted, as I expected change only in $\omega_0$ as ratio values change.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_31.jpg}\hspace{4pt}
@@ -172,7 +172,7 @@ freqz(b10, a10, resolution, 10000);
 
 Without correction passband gain is only largely constant but not exactly 1. Gain 1 is not guaranteed theoretically. 
 
-Only $b$ coefficients are safe to sclae, because scaling $a$ coefficients can put pole outside of unit circle violating stability contraint of $r$ < 1 that makes system unstable. Scaling $b$ coefficients just multiplies G(z) transfer function by constant factor.
+Only $b$ coefficients are safe to scale, because scaling $a$ coefficients can put pole outside of unit circle violating stability constraint of $r$ < 1 that makes system unstable. Scaling $b$ coefficients just multiplies G(z) transfer function by constant factor.
 
 Since $z = e^{j\omega}$ at $\omega = 0$ (DC component of 0 H), $z = e^{j * 0} = 1$. So, we need gain correction factor (in my code it is $b_0$) that is ratio of denominator to numerator evaluated at $z = 1$, thus scales $b$ coefficients so that $H(z = 1) = 1$. 
 
@@ -191,7 +191,7 @@ end
 
 \subsection{Laboratory 2 -- Design a Comb filter out of a Butterworth low-pass filter with 3 repetitions}
 
-Basic comb filter with $r$ = 0.9999995 and $Lf$ = 9 uses FIR structure with $a = 1$ so only zeros, no poles. From the output in figure 29 it can be seen that 9 zeros are plcaed inside the unit circle with visually equal space between them. As expected 9 repeated notches are produced in magnitude spectrum from 0 to $pi$ in normalized frequency.
+Basic comb filter with $r$ = 0.9999995 and $Lf$ = 9 uses FIR structure with $a = 1$ so only zeros, no poles. From the output in figure 29 it can be seen that 9 zeros are placed inside the unit circle with visually equal space between them. As expected 9 repeated notches are produced in magnitude spectrum from 0 to $pi$ in normalized frequency.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_35.jpg}\hspace{4pt}
@@ -230,7 +230,7 @@ end
 
 \subsubsection{(b) Use your Comb filter function and analyse it with the amplitude and phase response of the filter.}
 
-I used order $N$ = 4 butterworth lowpass with cutoff frequency at $0.2\pi$. After $0.2\pi$ normalized frequency filter must start attenuation. This was an arbitrary choice during the lab, nit biased towards a certain value. Since order is 4, there must be 4 zeros and 4 poles in transfer function, also in pole zero map.
+I used order $N$ = 4 butterworth lowpass with cutoff frequency at $0.2\pi$. After $0.2\pi$ normalized frequency filter must start attenuation. This was an arbitrary choice during the lab, not biased towards a certain value. Since order is 4, there must be 4 zeros and 4 poles in transfer function, also in pole zero map.
 
 \begin{figure}[H]
   \includegraphics[width=0.32\textwidth]{image_37.jpg}\hspace{4pt}

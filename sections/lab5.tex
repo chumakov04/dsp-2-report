@@ -46,7 +46,7 @@ end
 \]
 Explain why the Gaussian filter results in less contour blurring than the Box filter.
 
-Output on Figure~\ref{fig:501} shows that, as expected, gaussian kernel resulted in less blurring of object edge pixels, because gaussian weightens central pixels 4 times more than corner pixels of the kernel, and direct neighborhood ones 2 times more. Average becomes weighted towards what kernel looks at right now, and do not just blindly average pixels.
+Output on Figure~\ref{fig:501} shows that, as expected, gaussian kernel resulted in less blurring of object edge pixels, because gaussian weights central pixels 4 times more than corner pixels of the kernel, and direct neighborhood ones 2 times more. Average becomes weighted towards what kernel looks at right now, and do not just blindly average pixels.
 
 \codeused
 \begin{matlab}
@@ -147,7 +147,7 @@ sharp = max(0, min(255, sharp));
   \caption{original vs laplace sharpened image}\label{fig:502}
 \end{figure}
 
-Output on Figure~\ref{fig:502} shows exactly expacted behavior. Output of laplace which are edge countours is subtracted from original image. At edge where center pixel is brighter than 3 by 3 neighboorhood ones, laplacian output is negative (because center pixel is multplied by a factor of $-4$). Thus, $original\_image - (- edge\_pixel) = original\_image + edge\_pixel$, so intensity value of such edge pixel increases further. This amplifies edges while keeping rest of image unchanged. 
+Output on Figure~\ref{fig:502} shows exactly expected behavior. Output of laplace which are edge countours is subtracted from original image. At edge where center pixel is brighter than 3 by 3 neighborhood ones, laplacian output is negative (because center pixel is multiplied by a factor of $-4$). Thus, $original\_image - (- edge\_pixel) = original\_image + edge\_pixel$, so intensity value of such edge pixel increases further. This amplifies edges while keeping rest of image unchanged. 
 
 Similar behavior can be achieved with tresholding edges to the red color, for example. 
 

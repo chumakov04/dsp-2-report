@@ -48,7 +48,7 @@ Infinite impulse response filters cannot be exactly derived from frequency respo
   \caption{IIR filter logic}\label{fig:105}
 \end{figure}
 
-In IIR difference equation, $b_m$ are coefficients applied to input signal and $a_n$ are feedback coefficients aplied to past output values, feedback loop. Half of variables to be stored for calculation of IIR filter (shown with following formulas).
+In IIR difference equation, $b_m$ are coefficients applied to input signal and $a_n$ are feedback coefficients applied to past output values, feedback loop. Half of variables to be stored for calculation of IIR filter (shown with following formulas).
 
 \begin{equation}
   y_i = \sum_{m=0}^{M-1} b_m \cdot x_{i-m} - \sum_{n=1}^{N-1} a_n \cdot y_{i-n} \;\Longrightarrow\; X(z) \cdot \sum_{m=0}^{M-1} b_m \cdot z^{-m} = Y(z) \cdot \sum_{n=0}^{N-1} a_n \cdot z^{-n}
@@ -132,9 +132,9 @@ magntiude_Y = abs(Y);
 
 \subsubsection{(d) Use different windows for designing the FIR filter and compare the results and explain the advantages and disadvantages. Compare the different filters with the fvtool or with the freqz function}
 
-I created another 2 FIR filters similar to previous one but with hamming and blackman windows. I used order $N$ = 250, roughly the same but trying with a bit higher oder, since wider main lobes of hamming and blackman windows can fail to create sharp notch with same order with enough of attenuation. 
+I created another 2 FIR filters similar to previous one but with hamming and blackman windows. I used order $N$ = 250, roughly the same but trying with a bit higher order, since wider main lobes of hamming and blackman windows can fail to create sharp notch with same order with enough of attenuation. 
 
-Magnitude spectrum of resulting filters for such narrow frequency bandstop range with hamming and blackman windows shows that raising filter order $N$ = 230 to 250 is not suffient, and magnitude damping effect for bandstop frequency range drops significantly compared to FIR with rectangular window.
+Magnitude spectrum of resulting filters for such narrow frequency bandstop range with hamming and blackman windows shows that raising filter order $N$ = 230 to 250 is not sufficient, and magnitude damping effect for bandstop frequency range drops significantly compared to FIR with rectangular window.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_13.jpg}\hspace{4pt}
@@ -148,9 +148,9 @@ Magnitude spectrum of resulting filters for such narrow frequency bandstop range
   \caption{fvtool compare rectangular, hamming, blackman}\label{fig:111}
 \end{figure}
 
-More detailed compaison of magnitude spectrums can be seen on figure 11, where rectangular reaches around -20 $dB$ at stopband due to its narrow main lobe, but has sidelobe ripples in passband. Hamming and blackman have passband mostly without any ripples, but their wider main lobe, as expected, fails to create sharp notch for atennuation. Hamming reaches only -7.2 $dB$ and blackman -5.2 $dB$. Therefore, I have not tried to filter signal with them, because amplitude reduction would be worse than rectangular one.
+More detailed comparison of magnitude spectrums can be seen on figure 11, where rectangular reaches around -20 $dB$ at stopband due to its narrow main lobe, but has sidelobe ripples in passband. Hamming and blackman have passband mostly without any ripples, but their wider main lobe, as expected, fails to create sharp notch for attenuation. Hamming reaches only -7.2 $dB$ and blackman -5.2 $dB$. Therefore, I have not tried to filter signal with them, because amplitude reduction would be worse than rectangular one.
 
-So for such narrow stopband, windows with stronger sidelobe suppression actually seem to attenuate less at same order. To achieve higher stopband attenuation, may require either wider frequency range, or significantly hihger filter order, for example $N$ = 1000 not desired computationally.
+So for such narrow stopband, windows with stronger sidelobe suppression actually seem to attenuate less at same order. To achieve higher stopband attenuation, may require either wider frequency range, or significantly higher filter order, for example $N$ = 1000 not desired computationally.
 
 \codeused
 \begin{matlab}
@@ -168,7 +168,7 @@ First of all, equiripple is not a window method. Equiripple filter designs minim
   \caption{fvtool comparison and filtered spectrum, equiripple method}\label{fig:112}
 \end{figure}
 
-Figure~\ref{fig:112} shows fvtool output to compare magnitude spectrum of filter designed with equiripple mehtod and previously designed FIR of order $N$ = 230, and resulting frequency spectrum of filtered signal using equiripple mehtod. It can be seen that equiripple gives much higher -60 $dB$ stopband attenuation and narrower filter curve, compared to only -20 $dB$ stopband attenuation with rectangular, without ripple or leakage in sidelobs. Passband has smaller sidelobs equally distributed ripples around notch. Frequency spectrum of filtered signal has spike at around 1000 Hz completely removed, which is much better than what FIR of high order achieved with recatngular function, only reducing amplitude of the noise interference. 
+Figure~\ref{fig:112} shows fvtool output to compare magnitude spectrum of filter designed with equiripple method and previously designed FIR of order $N$ = 230, and resulting frequency spectrum of filtered signal using equiripple method. It can be seen that equiripple gives much higher -60 $dB$ stopband attenuation and narrower filter curve, compared to only -20 $dB$ stopband attenuation with rectangular, without ripple or leakage in sidelobes. Passband has smaller sidelobes equally distributed ripples around notch. Frequency spectrum of filtered signal has spike at around 1000 Hz completely removed, which is much better than what FIR of high order achieved with rectangular function, only reducing amplitude of the noise interference. 
 
 \codeused
 \begin{matlab}
@@ -227,7 +227,7 @@ y_2 = customFilter(Num, [], x);
 
 \subsubsection{(g) Design with the fdatool an IIR filter which can be used instead of the FIR filter. Export the IIR filter as second-order-sections (SOS).}
 
-As I already mentioned in the theoretical introduction, IIR filter allows for significanly stepper filter response with high stopband attenuation to be achoeved with low order $N$, euivalently small number of input and feedback coefficients. The frequency response of the Butterworth design method for IIR filter is maximally flat with no ripples in the passband and rolls off towards zero in the stopband \footnote{\url{https://en.wikipedia.org/wiki/Butterworth_filter}}. Poles of Butterworth filter are located in left half plane of unit circle (Figure~\ref{fig:114}).
+As I already mentioned in the theoretical introduction, IIR filter allows for significantly steeper filter response with high stopband attenuation to be achieved with low order $N$, equivalently small number of input and feedback coefficients. The frequency response of the Butterworth design method for IIR filter is maximally flat with no ripples in the passband and rolls off towards zero in the stopband \footnote{\url{https://en.wikipedia.org/wiki/Butterworth_filter}}. Poles of Butterworth filter are located in left half plane of unit circle (Figure~\ref{fig:114}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_77.png}
@@ -271,7 +271,7 @@ G(z) = \frac{b_0 + b_1 z^{-1} + b_2 z^{-2}}{1 + a_1 z^{-1} + a_2 z^{-2}}
 
 SOS matrix has each row as one 2nd order section $[b_0\; b_1\; b_2\; 1\; a_1\; a_2]$. $G$ scale values are filter gain factors separated from $b$ coefficients of each section to avoid numerical issues. G multiplies all gain values together into one total gain factor.
 
-I implemented \hyperlink{code:customSosfilt}{function for SOS} using described principle and already implemented \hyperlink{code:customFilter}{customFilter} function (subsection f code used) that can calculate both FIR and IIR filter outputs based on provided filter coefficients $a$ and $b$. First it takes SOS matrix values, goes goes row by row, because rows are 13 second order subsystems, and extracts coefficients $b$ and $a$ that are in sequential order from 1 to 6. Then, for each row it calculates output signal $y$ using \hyperlink{code:customFilter}{customFilter} function. In the end after main loop finishes, I apply gain factor or scale values by multyping $y$ resulting output of main loop with $G$ that is exported from designed filter.
+I implemented \hyperlink{code:customSosfilt}{function for SOS} using described principle and already implemented \hyperlink{code:customFilter}{customFilter} function (subsection f code used) that can calculate both FIR and IIR filter outputs based on provided filter coefficients $a$ and $b$. First it takes SOS matrix values, goes row by row, because rows are 13 second order subsystems, and extracts coefficients $b$ and $a$ that are in sequential order from 1 to 6. Then, for each row it calculates output signal $y$ using \hyperlink{code:customFilter}{customFilter} function. In the end after main loop finishes, I apply gain factor or scale values by multiplying $y$ resulting output of main loop with $G$ that is exported from designed filter.
 
 \codeused
 \hypertarget{code:customSosfilt}{}
@@ -309,7 +309,7 @@ Result is 0.0545, which could correspond to a small floating point precision err
 
 FIR filtering is equivalent to convolution of input signal $x_i$ with filter coefficients $b_n$. According to the convolution theorem, convolution in time domain corresponds to multiplication in frequency domain. 
 
-Problem with multiplying signal and filter coefficients into frequency domain is that FFT can only handle blocks of limited length. If consecutive blocks are convolved individually and simply put together, discontinuities occur at blocks boundaries, leading to leakage in spectral domain.
+Problem with multiplying signal and filter coefficients into frequency domain is that FFT can only handle blocks of limited length. If consecutive blocks are convolved individually and simply put together, discontinuities occur at block boundaries, leading to leakage in spectral domain.
 
 Solution is overlap add method that divides signal into blocks of size $L$ and appends $M - 1$ zeros to the end of each block before filtering, where $M$ is FIR filter length.
 
@@ -326,7 +326,7 @@ Signal related image well explaining the concept \footnote{\url{https://en.wikip
 
 Custom implementation for main loop follows the basic structure of overlap add pseudocode from wikipedia \footnote{\url{https://en.wikipedia.org/wiki/Overlap-add_method}}.
 
-Function code I developed is well explained by short comments I wrote during the preparation to the next lab 3, to avoid repetetion, I leave function code as it is.
+Function code I developed is well explained by short comments I wrote during the preparation to the next lab 3, to avoid repetition, I leave function code as it is.
 
 \codeused
 \hypertarget{code:overlapAdd}{}
@@ -381,7 +381,7 @@ end
   \caption{overlap add output compared with conv and fftfilt}\label{fig:119}
 \end{figure}
 
-Based on output of developed function shown on Figure~\ref{fig:119} custom overlap add, fftfilt, and convolution function outputs match for the first 9 samples, which is length of inpit signal. Overlap add and conv produce full convolution length $L + M - 1 = 9 + 3 - 1 = 11$ samples. fftfilt returns only $L = 9$ samples truncating the $M - 1 = 2$ tail samples. Thus, extra 2 values at the end are convolution tail that extends outside input signal length, which can simply be fixed by additional truncation in my custom function. I have not implemented that because theoretically full convolution length of 11 samples is correct. As signal ends last $M - 1 = 2$ tail samples have only few non zero inputs from signal, fftfilt just trunctates this (Figure~\ref{fig:120}).
+Based on output of developed function shown on Figure~\ref{fig:119} custom overlap add, fftfilt, and convolution function outputs match for the first 9 samples, which is length of input signal. Overlap add and conv produce full convolution length $L + M - 1 = 9 + 3 - 1 = 11$ samples. fftfilt returns only $L = 9$ samples truncating the $M - 1 = 2$ tail samples. Thus, extra 2 values at the end are convolution tail that extends outside input signal length, which can simply be fixed by additional truncation in my custom function. I have not implemented that because theoretically full convolution length of 11 samples is correct. As signal ends last $M - 1 = 2$ tail samples have only few non zero inputs from signal, fftfilt just truncates this (Figure~\ref{fig:120}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_84.png}

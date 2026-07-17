@@ -1,16 +1,16 @@
 \clearpage
 \section{Lab exercise 4: 2D-Filter and Image Processing}
 
-Image $P(x, y)$ is 2 dimensional signal with spatial coordinates $x$ and $y$. Signal values in this case are intensity (brightness) values of pixels ranging from 0 to 255 captured by sensor. Some captured by digital sensor rays are very strong and cause maximum intensity 255, equivalenty to white color. Some areas on the sensor do not capture any rays and thus can get intensity value of 0, equivalently complete black color. 
+Image $P(x, y)$ is 2 dimensional signal with spatial coordinates $x$ and $y$. Signal values in this case are intensity (brightness) values of pixels ranging from 0 to 255 captured by sensor. Some captured by digital sensor rays are very strong and cause maximum intensity 255, equivalently to white color. Some areas on the sensor do not capture any rays and thus can get intensity value of 0, equivalently complete black color. 
 
-2 dimensional signals can be modified and filtered in time and frequency domains following same principles as 1 dimensional signals by applying DFT in both spatial directions $x$ and $y$ sequentially, first DFT in $x$ direction (column by column), and second applied to the result of first in $y$ direction (row by row). The result it $Q(u, v)$ frequency spectrum that has same size as image with DC component at $Q(0, 0)$ representing average intensity of image, and values corresponding to bigger $u$ or $v$ represent high frequency details in image like tiny edges. Of course, conjugate symmetry applies but with 4 quadrants in frequency spectrum, as all properties for 1 dimensional DFT hold. Each $(u, v)$ pair is information about containment of sinusoid with that specific frequency in image (Figure~\ref{fig:401}).
+2 dimensional signals can be modified and filtered in time and frequency domains following same principles as 1 dimensional signals by applying DFT in both spatial directions $x$ and $y$ sequentially, first DFT in $x$ direction (column by column), and second applied to the result of first in $y$ direction (row by row). The result is $Q(u, v)$ frequency spectrum that has same size as image with DC component at $Q(0, 0)$ representing average intensity of image, and values corresponding to bigger $u$ or $v$ represent high frequency details in image like tiny edges. Of course, conjugate symmetry applies but with 4 quadrants in frequency spectrum, as all properties for 1 dimensional DFT hold. Each $(u, v)$ pair is information about containment of sinusoid with that specific frequency in image (Figure~\ref{fig:401}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_103.png}
   \caption{frequency spectrum}\label{fig:401}
 \end{figure}
 
-Labs 4 and 5 do not focus on frequency spectrum of images, instead use 2 dimensional kernels, thus I will not go into much more detail. What is important to mention is that frequency in image is basically amplitude change between pixel intensities of neighboring pixels (Figure~\ref{fig:402}). If 1 pixel has value 0 = Black, and second pixel receives ray with value 255 = White, then this is highest frequency possible. Amplitude change is from lowest to highest value (white edge on black backround). While, smooth changes like sky gradient would correspond to low frequency components. 
+Labs 4 and 5 do not focus on frequency spectrum of images, instead use 2 dimensional kernels, thus I will not go into much more detail. What is important to mention is that frequency in image is basically amplitude change between pixel intensities of neighboring pixels (Figure~\ref{fig:402}). If 1 pixel has value 0 = Black, and second pixel receives ray with value 255 = White, then this is highest frequency possible. Amplitude change is from lowest to highest value (white edge on black background). While, smooth changes like sky gradient would correspond to low frequency components. 
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_102.png}
@@ -26,7 +26,7 @@ P_{x,y} * F_{x,y} = \sum_{n=0}^{N} \sum_{m=0}^{M} F_{m,n} \cdot P_{x-m, y-n}
 
 $P_{x,y}$ is image signal, $F_{x,y}$ is FIR filter window. Same as 1 dimensional convolution theorem that says that convolution in time domain corresponds to multiplication in frequency domain, same applies to image filtering. Labs 4 and 5 do not use frequency spectrum based filtering, thus I will not go into further detail.  Basic idea behind frequency domain filtering is instead of guessing values for perfect window FIR filter mask in spatial domain, simple rule for mask can be specified for frequency domain pairwise multiplication, like distance from origin to $(u, v)$ pair. Lowpass sets frequencies to 0 if distance is large, corresponding to attenuation of high frequency components.
 
-Basic principle of filtering with spatial domain image kernels shown on mean window (Figure~\ref{fig:403}). With 3 by 3 kernel boundary pixels of image require padding of 1 which is done using different methods, depending on what is desired, such as padding with constant vakue replication padding, reflection mirror padding, or zero padding \footnote{\url{https://www.mathworks.com/help/images/imfilter-boundary-padding-options.html}}. Central pixel in 3 by 3 neighborhood gets average value. Convolution window continue sliding until all pixels in image receive average value. 
+Basic principle of filtering with spatial domain image kernels shown on mean window (Figure~\ref{fig:403}). With 3 by 3 kernel boundary pixels of image require padding of 1 which is done using different methods, depending on what is desired, such as padding with constant value replication padding, reflection mirror padding, or zero padding \footnote{\url{https://www.mathworks.com/help/images/imfilter-boundary-padding-options.html}}. Central pixel in 3 by 3 neighborhood gets average value. Convolution window continues sliding until all pixels in image receive average value. 
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_105.png}
@@ -46,21 +46,21 @@ Laplacian uses kernel values to determine image gradient in pixel intensity valu
 \label{eq:laplacian}
 \end{equation}
 
-If there is a change, edge pixels receive amplified brightness values. Along with tresholding applied it can draw object edges while making everything else completely black. 
+If there is a change, edge pixels receive amplified brightness values. Along with thresholding applied it can draw object edges while making everything else completely black. 
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_111.png}
   \caption{second derivative operator}\label{fig:404}
 \end{figure}
 
-Laplacian values are selected to represent second derivative, making it vulnurable to detect noise spike as real object edge. Therefore, gaussian is used together with laplacian to remove such noise from image, also called mexican hat operator (Figure~\ref{fig:405}).
+Laplacian values are selected to represent second derivative, making it vulnerable to detect noise spike as real object edge. Therefore, gaussian is used together with laplacian to remove such noise from image, also called mexican hat operator (Figure~\ref{fig:405}).
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_112.png}
   \caption{second derivative operator}\label{fig:405}
 \end{figure}
 
-There are simplier methods to manipulate images are based on pixel intensity values distribution. Histogram tells how much pixels from 0 (dark) to 255 (bright) are contained in image, equivalently histogram provides high level summary of image based on frequency of each brightness value in image. If image histogram truns out to be bipolar with 2 dominant peaks (a lot of bright and dark pixels), then simple tresholding could be used to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:406}).
+There are simpler methods to manipulate images are based on pixel intensity values distribution. Histogram tells how much pixels from 0 (dark) to 255 (bright) are contained in image, equivalently histogram provides high level summary of image based on frequency of each brightness value in image. If image histogram turns out to be bipolar with 2 dominant peaks (a lot of bright and dark pixels), then simple tresholding could be used to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:406}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_104.png}
@@ -69,7 +69,7 @@ There are simplier methods to manipulate images are based on pixel intensity val
 
 Another method of histogram modification is contrast enhancement that can be achieved with transfer functions and histogram equalization. 
 
-Contrast is how well spread intensity values are in image, which is connected to how human eye perceives surroundings. If image is bright everywhere, it is difficiult to see tiny details, as well as in complete dark image. In low contrast image histogram brightness values are clustered in a narrow range like most between 200-210 intensity levels, while other before and after this cluster are not used well. Thus, transfer function can be designed to spread out this narrow range to 0-255.
+Contrast is how well spread intensity values are in image, which is connected to how human eye perceives surroundings. If image is bright everywhere, it is difficult to see tiny details, as well as in complete dark image. In low contrast image histogram brightness values are clustered in a narrow range like most between 200-210 intensity levels, while other before and after this cluster are not used well. Thus, transfer function can be designed to spread out this narrow range to 0-255.
 
 More formally, transfer function $T$ maps input intensity $r$ to output $s = T(r)$. Slope thus is multiplier of differences between pixel values. Where slope $>1$, input intensity range is stretched to wider output range and contrast increases. Where slope $<1$, range is compressed and contrast decreases (Figure~\ref{fig:407}). 
 
@@ -82,12 +82,12 @@ Gamma correction function uses exactly this principle. It is non linear transfer
 
 In probability density function $p_r(r)$ (chance of each brightness value occurance) total area under curve is always 1 because it represents all pixel intensity values. If section is stretched by slope $> 1$, width increases so height must decrease to keep area same. If compressed by slope $<1$, width decreases and height increases (Figure~\ref{fig:408}).
 
-Histogram equalization achieves best possible contrast in image by using image intensity values histogram $p_r(r)$ to calculate custom transfer function that makes output histogram flat in density $p_s(s)$, equivalently uniform distribution with equal prbability of each intensity level occcuring. Cumulative distribution function needs to be applied as intensity transfer function. In continious case with infinitely many brightness leveks this is integration of $p_r(r)$. 
+Histogram equalization achieves best possible contrast in image by using image intensity values histogram $p_r(r)$ to calculate custom transfer function that makes output histogram flat in density $p_s(s)$, equivalently uniform distribution with equal probability of each intensity level occurring. Cumulative distribution function needs to be applied as intensity transfer function. In continuous case with infinitely many brightness levels this is integration of $p_r(r)$. 
 
 \begin{figure}[H]
   \includegraphics[width=0.46\textwidth]{image_108.png}\hspace{4pt}
   \includegraphics[width=0.50\textwidth]{image_109.png}
-  \caption{continious histogram equalization}\label{fig:408}
+  \caption{continuous histogram equalization}\label{fig:408}
 \end{figure}
 
 For discrete 8-bit image with $L = 256$ gray levels, integration is replaced by discrete summation. Relative frequency of each intensity level $k$ is $p_r(r_k) = \frac{n_k}{n}$, where $n$ is total number of pixels and $n_k$ is number of occurrences of specific gray level $k$. Running sum of these probabilities gives each intensity level $k$ new rank (Equation~\ref{eq:histeq}).
@@ -117,7 +117,7 @@ I wrote custom functions to perform histogram equalization based on the describe
   \caption{histogram of pout.gif pixel values}\label{fig:410}
 \end{figure}
 
-First of all I store image as 1 dimensional array of brightness values to compute histogram based on their frequency (count). Output on Figure~\ref{fig:410} shows that most pixel values are largely concentrated between 70-150 intensity values range, which indicates poor contrast. As already mentioned in theoretical intoduction, values cluttered need to be spread out through whole 0 to 255 value range with enough space inbetween to produce a better image contrast.
+First of all I store image as 1 dimensional array of brightness values to compute histogram based on their frequency (count). Output on Figure~\ref{fig:410} shows that most pixel values are largely concentrated between 70-150 intensity values range, which indicates poor contrast. As already mentioned in theoretical introduction, values cluttered need to be spread out through whole 0 to 255 value range with enough space inbetween to produce a better image contrast.
 
 \codeused
 \begin{matlab}
@@ -326,7 +326,7 @@ Output of just gamma correction applied on Figure~\ref{fig:416} confirms this, d
   \caption{gamma correction with contrast stretch on pout.gif}\label{fig:417}
 \end{figure}
 
-Output on Figure~\ref{fig:417} shows that stretching helped, thus there was a lot of unused intensity values in original image histogram. Bigger $\gamma$ = 1.5 also resulted in brighter image, but since contrast is much higher, there are a lot of details visible on person and on background at the same time, both got brighter. Small $\gamma$ = 0.5 is a bit harsh for this image, dark values stretched got compressed into small value range after gamma correction applied, resulting in very dark backround with almost no details. Same issue happened with dark hair of the main object.
+Output on Figure~\ref{fig:417} shows that stretching helped, thus there was a lot of unused intensity values in original image histogram. Bigger $\gamma$ = 1.5 also resulted in brighter image, but since contrast is much higher, there are a lot of details visible on person and on background at the same time, both got brighter. Small $\gamma$ = 0.5 is a bit harsh for this image, dark values stretched got compressed into small value range after gamma correction applied, resulting in very dark background with almost no details. Same issue happened with dark hair of the main object.
 
 \subsubsection{(b) as well with different pictures}
 
@@ -342,7 +342,7 @@ Histogram of image with coin is bipolar with 2 clear peaks of intensity values, 
   \caption{gamma correction with contrast stretch on adler.jpg}\label{fig:419}
 \end{figure}
 
-Output on Figure~\ref{fig:418} and Figure~\ref{fig:419} confirms that stretching did not improve result significantly, slightly improved contrast of the coin details. More important is effect with smaller $\gamma$ = 0.5, after which background gets compressed to a very narrow intesity value range after transfer function applied, and is mostly black, while details on coin are preserved (makes sense, since it is very bright). Even better effect is later on achieved with tresholding.
+Output on Figure~\ref{fig:418} and Figure~\ref{fig:419} confirms that stretching did not improve result significantly, slightly improved contrast of the coin details. More important is effect with smaller $\gamma$ = 0.5, after which background gets compressed to a very narrow intensity value range after transfer function applied, and is mostly black, while details on coin are preserved (makes sense, since it is very bright). Even better effect is later on achieved with tresholding.
 
 Church image looks very dark originally, suggesting that most bright values in image histogram are not occupied. Thus, similarly to image of person, intensities stretching helps significantly. Gamma correction applied just to raw image is also not meaningful.
 
@@ -431,7 +431,7 @@ end
   \caption{histogram equalization applied after filtering}\label{fig:423}
 \end{figure}
 
-Figure~\ref{fig:423} shows the result of applied histogram equalization on a raw image as well as filtered with both kernels. Spreading out cluttered pixel intesnities values across 0-255 range helped, significantly imporving contrast of background and membranes structure. Median kernel applied before histogram equalization applied produces best result without any noise with very good contrast.
+Figure~\ref{fig:423} shows the result of applied histogram equalization on a raw image as well as filtered with both kernels. Spreading out cluttered pixel intensities values across 0-255 range helped, significantly improving contrast of background and membranes structure. Median kernel applied before histogram equalization applied produces best result without any noise with very good contrast.
 
 \codeused
 \begin{matlab}
@@ -462,7 +462,7 @@ end
   \caption{edge detection with laplacian and LoG before equalization}\label{fig:424}
 \end{figure}
 
-For the edge detection I used laplacian and laplacian of gaussian discussed in theoretical introduction to highlight edges better. However a lot of tiny details on membrane, which are high frequency changes, distracted Laplacian and result is overamplified details across all image, not edges as I wanted (Figure~\ref{fig:424}). Gaussian applied before laplacian helps by smoothing such tiny details in membranes, producing more or less what is desired. As discuseed earlier, gaussian as expected does not ruin membranes edges before laplacian is applied because of weighting central pixel of kernel window more.
+For the edge detection I used laplacian and laplacian of gaussian discussed in theoretical introduction to highlight edges better. However a lot of tiny details on membrane, which are high frequency changes, distracted Laplacian and result is overamplified details across all image, not edges as I wanted (Figure~\ref{fig:424}). Gaussian applied before laplacian helps by smoothing such tiny details in membranes, producing more or less what is desired. As discussed earlier, gaussian as expected does not ruin membranes edges before laplacian is applied because of weighting central pixel of kernel window more.
 
 \codeused
 \begin{matlab}
@@ -523,7 +523,7 @@ subplot(4, 3, 8); imshow(histogram_equalization(cells_log)); title('median, log,
 
 \subsection{Laboratory 4 -- Manipulate the following picture adler.jpg}
 
-Given bright coin on a dark backround picture (Figure~\ref{fig:425}) is a perfect example of method to manipulate image based on pixel intensity values bipolar histogram with 2 dominant peaks (a lot of bright and dark pixels). Simple tresholding must be used between peaks in well separated region to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:406}).
+Given bright coin on a dark background picture (Figure~\ref{fig:425}) is a perfect example of method to manipulate image based on pixel intensity values bipolar histogram with 2 dominant peaks (a lot of bright and dark pixels). Simple thresholding must be used between peaks in well separated region to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:406}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_65.jpg}\vspace{4pt}
@@ -542,14 +542,14 @@ subplot(1, 2, 2); bar(0:255, histcounts(adler(:), 0:256)); title('histogram');
 
 \subsubsection{(a) so that the background has only one colour without disturbing the coin}
 
-First I select treshold value of 150 arbitary between peaks in intensity values on histogram (Figure~\ref{fig:425}). Pixels of the left peak are background pixels, because their intensity value is low. Thus, for all pixels below treshold assign value 0 = Black.
+First I select threshold value of 150 arbitrary between peaks in intensity values on histogram (Figure~\ref{fig:425}). Pixels of the left peak are background pixels, because their intensity value is low. Thus, for all pixels below treshold assign value 0 = Black.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_66.jpg}
   \caption{adler.jpg thresholding}\label{fig:426}
 \end{figure}
 
-Based on output on Figure~\ref{fig:426} coin attains all details and contrast unotuched, while background now is completely black.
+Based on output on Figure~\ref{fig:426} coin attains all details and contrast untouched, while background now is completely black.
 
 \codeused
 \begin{matlab}
@@ -562,14 +562,14 @@ background(adler < threshold) = 0;
 
 \subsubsection{(b) so that the coin has only one colour without disturbing the background}
 
-With coin being 1 color easier to assign 255 = White value to bright pixels peak after treshold value of 150, so that coin is clearly visually separated from background and background at the same time attains all details and contrast.
+With coin being 1 color easier to assign 255 = White value to bright pixels peak after threshold value of 150, so that coin is clearly visually separated from background and background at the same time attains all details and contrast.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_66.jpg}
   \caption{adler.jpg thresholding}\label{fig:427}
 \end{figure}
 
-Based on output on Figure~\ref{fig:427} background attains all details and contrast unotuched, while all coin pixels now are completely bright or white.
+Based on output on Figure~\ref{fig:427} background attains all details and contrast untouched, while all coin pixels now are completely bright or white.
 
 \codeused
 \begin{matlab}
@@ -579,14 +579,14 @@ coin(adler > threshold) = 255;
 
 \subsection{Homework 4 (Diary only: Adapt your own histogram equalisation algorithm to perform a good result for the coloured picture church2.png)}
 
-I used HSV color model (NB: worked better with this image then rgb2ycbcr with green channel for details) with rgb2hsv Matlab function \footnote{\url{https://www.mathworks.com/help/matlab/ref/rgb2hsv.html}}, since image is provided colored with 3 channels. Code is well commented, main difference from the lab is that I extract V = brightness channel and perform histogram equalization on it, which makes sense because these are color intensities. Only thing to track is converting between [0, 1] and [0, 255] as HSV returned as an m-by-n-by-3 numeric array with values in the range [0, 1] while developed equalization function are designed to receive input as [0, 255] and normalize after. Code is well commented, and other functionality is same as I used in lab.
+I used HSV color model (NB: worked better with this image than rgb2ycbcr with green channel for details) with rgb2hsv Matlab function \footnote{\url{https://www.mathworks.com/help/matlab/ref/rgb2hsv.html}}, since image is provided colored with 3 channels. Code is well commented, main difference from the lab is that I extract V = brightness channel and perform histogram equalization on it, which makes sense because these are color intensities. Only thing to track is converting between [0, 1] and [0, 255] as HSV returned as an m-by-n-by-3 numeric array with values in the range [0, 1] while developed equalization function are designed to receive input as [0, 255] and normalize after. Code is well commented, and other functionality is same as I used in lab.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_67.jpg}
   \caption{HSV color model based histogram equalization on church2.png}\label{fig:428}
 \end{figure}
 
-Output on Figure~\ref{fig:428} shows extremely good result with even dark grass getting enough contrast. My assumption is that given image is just artifically darkened with pixel intinsities range compressed to a narrow. Thus, once equalization spreads them out, result is perfect.
+Output on Figure~\ref{fig:428} shows extremely good result with even dark grass getting enough contrast. My assumption is that given image is just artifically darkened with pixel intensities range compressed to a narrow. Thus, once equalization spreads them out, result is perfect.
 
 \codeused
 \begin{matlab}
