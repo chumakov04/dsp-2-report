@@ -46,7 +46,7 @@ end
 \]
 Explain why the Gaussian filter results in less contour blurring than the Box filter.
 
-Output on Figure~\ref{fig:501} shows that, as expected, gaussian kernel resulted in less blurring of object edge pixels, because gaussian weights central pixels 4 times more than corner pixels of the kernel, and direct neighborhood ones 2 times more. Average becomes weighted towards what kernel looks at right now, and do not just blindly average pixels.
+Output on Figure~\ref{fig:501} shows that, as expected, gaussian kernel resulted in less blurring of object edge pixels, because gaussian weights central pixels 4 times more than corner pixels of the kernel, and direct neighborhood ones 2 times more. Average becomes weighted towards what kernel looks at right now, and does not just blindly average pixels.
 
 \codeused
 \begin{matlab}
