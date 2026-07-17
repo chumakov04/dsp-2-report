@@ -30,7 +30,7 @@ Z-transform is laplace transform of discrete pulse consisting of weighted dirac 
 
 $Y(z) = X(z) \cdot G(z) \;\Longleftrightarrow\; G(z) = \frac{Y(z)}{X(z)} = b_0 + b_1 z^{-1} + b_2 z^{-2} + \cdots + b_N z^{-N}$. 
 
-FIR filters have no feedback, therefore are always numerically stable. The output of the FIR filter is convolution of input values with filter coefficients $b_n$. If the filter order is increased, the steepness of a filter curve is increased, but not the damping effect, which is controlled with a window function. Since FIR is convolution in time domain, which corresponds to multiplication in frequency domain, desired frequency response of FIR filter is defined in frequency domain and transformed to the time domain to get filter coefficients. Window function multiplies ideal impulse response and truncates it to $N+1$ coefficients. Thus, even with high filter order $N$ ripples in passband and stopband remain, specifically with rectangular window function. For a smoother filtering hamming and blackman functions are used in this lab, with filter coefficients obtained by multiplying theoretically infinite coefficients by window function $b_n = w(t) \cdot b_{n,\infty}$. NB: steep transition of a FIR filter is possible only with very big order of FIR.
+FIR filters have no feedback, therefore are always numerically stable. The output of the FIR filter is convolution of input values with filter coefficients $b_n$. If the filter order is increased, the steepness of a filter curve is increased, but not the damping effect, which is controlled with a window function. Since FIR is convolution in time domain, which corresponds to multiplication in frequency domain, desired frequency response of FIR filter is defined in frequency domain and transformed to the time domain to get filter coefficients. Window function multiplies ideal impulse response and truncates it to $N+1$ coefficients. Thus, even with high filter order $N$ ripples in passband and stopband remain, specifically with rectangular window function. For smoother filtering, hamming and blackman functions are used in this lab, with filter coefficients obtained by multiplying theoretically infinite coefficients by window function $b_n = w(t) \cdot b_{n,\infty}$. NB: steep transition of a FIR filter is possible only with very big order of FIR.
 
 Another important property of FIR filters is linear phase, meaning that the signal is shifted independent of frequency in time domain. For linear phase, the filter coefficients must be symmetric (odd number of filter coefficients).
 
@@ -61,7 +61,7 @@ In IIR difference equation, $b_m$ are coefficients applied to input signal and $
 
 IIR filter can be built with a very low order to create steep filter curve transition and high attenuation, which is more efficient than FIR filter. However, because of feedback introduced, IIR filters are not always stable. Poles can be located at any position, for stability must be within unit circle. 
 
-Quantization errors occurs in digital filters because filter coefficients $a_n$ and $b_n$ can only be stored with limited accuracy, depending on the data type used. With FIR filters this is not critical, since all poles are at the origin and the system cannot become unstable. Thus, quantization effects of feedback filter coefficients $a_n$ can lead to deviations and possibly instability of IIR filter; if pole is placed outside of unit circle trivially system is unstable by definition. Solution is to divide higher order system into several lower order = second order sections (SOS) that are connected in series. Total effect of quantization errors of all filter coefficients on all poles can be prevented, since filter coefficients of $2nd$ order subsystems allow one pole pair to be placed independently of other pairs. Transfer function is product of all subsystems $G'(z) = G_1(z) \cdot G_2(z) \cdot G_3(z)$.
+Quantization errors occurs in digital filters because filter coefficients $a_n$ and $b_n$ can only be stored with limited accuracy, depending on the data type used. With FIR filters, this is not critical, since all poles are at the origin and the system cannot become unstable. Thus, quantization effects of feedback filter coefficients $a_n$ can lead to deviations and possibly instability of IIR filter; if pole is placed outside of unit circle trivially system is unstable by definition. Solution is to divide higher order system into several lower order = second order sections (SOS) that are connected in series. Total effect of quantization errors of all filter coefficients on all poles can be prevented, since filter coefficients of $2nd$ order subsystems allow one pole pair to be placed independently of other pairs. Transfer function is product of all subsystems $G'(z) = G_1(z) \cdot G_2(z) \cdot G_3(z)$.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_6.png}
@@ -117,7 +117,7 @@ I designed FIR bandstop filter in fdatool with rectangular window, order $N$ = 2
   \caption{frequency spectrum after FIR bandstop filtering}\label{fig:109}
 \end{figure}
 
-Figure~\ref{fig:109} shows the result of filtered signal with a noise present using filter(b = Num, a = 1, x) function, where 1 means no feedback coefficients with $a_0 = 1$. Equivalently denominator of transfer function G(z) is 1. Frequency spectrum shows spike at around 1000 Hz reduced from magnitude 11000 to 1100, but not completely removed. As expected with rectangular window, leakage occurs around bandstop frequency range due to sidelobes introduced by rectangular window function. Also, in Figure~\ref{fig:108} it can be seen that passband at 0 $dB$ is not flat and has ripple. 
+Figure~\ref{fig:109} shows the result of filtered signal with a noise present using filter(b = Num, a = 1, x) function, where 1 means no feedback coefficients with $a_0 = 1$. Equivalently, denominator of transfer function G(z) is 1. Frequency spectrum shows spike at around 1000 Hz reduced from magnitude 11000 to 1100, but not completely removed. As expected with rectangular window, leakage occurs around bandstop frequency range due to sidelobes introduced by rectangular window function. Also, in Figure~\ref{fig:108} it can be seen that passband at 0 $dB$ is not flat and has ripple. 
 
 \codeused
 \begin{matlab}
@@ -234,7 +234,7 @@ As I already mentioned in the theoretical introduction, IIR filter allows for si
   \caption{IIR butterworth poles}\label{fig:114}
 \end{figure}
 
-Another design methods for IIR filters are Chebyshev type 1 and type 2. For this lab Butterworth is used because it is more simple with flat passband at 0 $db$, while Chebyshev allows ripple there. Even though Chebyshev allows lower order for same transition filter curve as Butterworth \footnote{\url{https://www.mathworks.com/discovery/notch-filter.html}}.
+Another design methods for IIR filters are Chebyshev type 1 and type 2. For this lab, Butterworth is used because it is more simple with flat passband at 0 $db$, while Chebyshev allows ripple there. Even though Chebyshev allows lower order for same transition filter curve as Butterworth \footnote{\url{https://www.mathworks.com/discovery/notch-filter.html}}.
 
 \begin{figure}[H]
   \includegraphics[width=0.48\textwidth]{image_21.jpg}\hspace{4pt}
@@ -249,7 +249,7 @@ Figure~\ref{fig:115} shows designed in fdatool IIR butterworth filter with minim
   \caption{SOS matrix and G scale values exported from fdatool}\label{fig:116}
 \end{figure}
 
-Size of SOS is 13 by 6 which mean that 13 cascaded 2nd order sections each with 3 $b$-coefficients and 3 $a$-coefficients, where $a_0$ is always 1. Thus, higher order IIR filter is split into $N/2$ second order filters connected in series and order 26 Butterworth becomes 13 subsystems with 6 filter coefficients each.
+Size of SOS is 13 by 6, which means that 13 cascaded 2nd order sections each with 3 $b$-coefficients and 3 $a$-coefficients, where $a_0$ is always 1. Thus, higher order IIR filter is split into $N/2$ second order filters connected in series and order 26 Butterworth becomes 13 subsystems with 6 filter coefficients each.
 
 \codeused
 \begin{matlab}

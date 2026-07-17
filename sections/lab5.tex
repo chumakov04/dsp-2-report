@@ -11,7 +11,7 @@ Smoothing filters are used to reduce noise, but they often result in blurring
 
 As already explained in example on Figure~\ref{fig:403}, mean kernel computes inner product of 3 by 3 original image neighborhood pixel block and kernel values which are 1/9 and replaces central pixel with average value.  
 
-Padding of 1 must be done because when central pixel of kernel is at the position of image border pixel, there is 1 kernel pixel outside of image. It can be easily done without any complex padding function. I just initialize average = zeros(rows, cols) and slide kernel starting from second pixel in image, so that image is implicitely gets zero padded as with conv2 Matlab function.
+Padding of 1 must be done because when central pixel of kernel is at the position of image border pixel, there is 1 kernel pixel outside of image. It can be easily done without any complex padding function. I just initialize average = zeros(rows, cols) and slide kernel starting from second pixel in image, so that image is implicitly gets zero padded as with conv2 Matlab function.
 
 \codeused
 \begin{matlab}
@@ -82,7 +82,7 @@ Use manual convolution (nested loops).
 
 HL in my code is Laplace window that will detect amplitude changes in intensity values, and if there is a change, it will assign proportionate value to such center pixels. 
 
-Zero padding is done as before. As instructed convolution is done with nested loops, for each pixel 3 by 3 neighborhood block is extracted, element wise multiplied by HL kernel weights and all 9 products are summed into single output value for that center pixel.
+Zero padding is done as before. As instructed, convolution is done with nested loops, for each pixel 3 by 3 neighborhood block is extracted, element wise multiplied by HL kernel weights and all 9 products are summed into single output value for that center pixel.
 
 \codeused
 \begin{matlab}
@@ -147,9 +147,9 @@ sharp = max(0, min(255, sharp));
   \caption{original vs laplace sharpened image}\label{fig:502}
 \end{figure}
 
-Output on Figure~\ref{fig:502} shows exactly expected behavior. Output of laplace which are edge countours is subtracted from original image. At edge where center pixel is brighter than 3 by 3 neighborhood ones, laplacian output is negative (because center pixel is multiplied by a factor of $-4$). Thus, $original\_image - (- edge\_pixel) = original\_image + edge\_pixel$, so intensity value of such edge pixel increases further. This amplifies edges while keeping rest of image unchanged. 
+Output on Figure~\ref{fig:502} shows exactly expected behavior. Output of laplace which are edge contours is subtracted from original image. At edge where center pixel is brighter than 3 by 3 neighborhood ones, laplacian output is negative (because center pixel is multiplied by a factor of $-4$). Thus, $original\_image - (- edge\_pixel) = original\_image + edge\_pixel$, so intensity value of such edge pixel increases further. This amplifies edges while keeping rest of image unchanged. 
 
-Similar behavior can be achieved with tresholding edges to the red color, for example. 
+Similar behavior can be achieved with thresholding edges to the red color, for example. 
 
 
 \subsection{Laboratory 5 -- GPU Challenge}

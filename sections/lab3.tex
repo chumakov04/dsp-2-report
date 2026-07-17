@@ -42,7 +42,7 @@ b_n^{new} = b_n^{old} + 2 * \mu * e_i * x_{i-n}
 \label{eq:lms}
 \end{equation}
 
-So basic idea of adapting modelled noise tranfer function to cancel out noise is updating FIR filtered signal coefficients based on gradient of error term power with respect to corresponding filter coefficient. This approach is effective, but also should be noted that adjusting one coefficient $b_1$ influences others, thus optimal $b_1$ does not guarantee optimal $b_0$ and $b_2$. If $b_1$ reached optimum, and later $b_0$ is adjusted, $b_1$ can be no longer optimum.
+So basic idea of adapting modelled noise transfer function to cancel out noise is updating FIR filtered signal coefficients based on gradient of error term power with respect to corresponding filter coefficient. This approach is effective, but also should be noted that adjusting one coefficient $b_1$ influences others, thus optimal $b_1$ does not guarantee optimal $b_0$ and $b_2$. If $b_1$ reached optimum, and later $b_0$ is adjusted, $b_1$ can be no longer optimum.
 
 \subsection{Laboratory 3 -- Use the Adapt\_Filter\_Template.m and complete the code of the adaptive filter routine.}
 
@@ -151,7 +151,7 @@ figure; plot(bb'); ... legend('b0','b1','b2','b3','b4');
   \caption{original vs recovered signal and difference}\label{fig:307}
 \end{figure}
 
-Figure~\ref{fig:307} shows difference signal in time domain between original $x(t)$ (or $s0$ as I used in code and plots) and recovered $e(k)$. As can be seen, most noticable difference is as already observed until 1 second, when FIR filter coefficients settle towards optimal values. However, most difference is actually until 0.3 seconds (not 1 second as I concluded from visual difference between original and recovered signal), after that coefficients converge and difference become minimal with small variance.
+Figure~\ref{fig:307} shows difference signal in time domain between original $x(t)$ (or $s0$ as I used in code and plots) and recovered $e(k)$. As can be seen, most noticeable difference is as already observed until 1 second, when FIR filter coefficients settle towards optimal values. However, most difference is actually until 0.3 seconds (not 1 second as I concluded from visual difference between original and recovered signal), after that coefficients converge and difference become minimal with small variance.
 
 \codeused
 \begin{matlab}

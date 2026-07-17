@@ -26,7 +26,7 @@ P_{x,y} * F_{x,y} = \sum_{n=0}^{N} \sum_{m=0}^{M} F_{m,n} \cdot P_{x-m, y-n}
 
 $P_{x,y}$ is image signal, $F_{x,y}$ is FIR filter window. Same as 1 dimensional convolution theorem that says that convolution in time domain corresponds to multiplication in frequency domain, same applies to image filtering. Labs 4 and 5 do not use frequency spectrum based filtering, thus I will not go into further detail.  Basic idea behind frequency domain filtering is instead of guessing values for perfect window FIR filter mask in spatial domain, simple rule for mask can be specified for frequency domain pairwise multiplication, like distance from origin to $(u, v)$ pair. Lowpass sets frequencies to 0 if distance is large, corresponding to attenuation of high frequency components.
 
-Basic principle of filtering with spatial domain image kernels shown on mean window (Figure~\ref{fig:403}). With 3 by 3 kernel boundary pixels of image require padding of 1 which is done using different methods, depending on what is desired, such as padding with constant value replication padding, reflection mirror padding, or zero padding \footnote{\url{https://www.mathworks.com/help/images/imfilter-boundary-padding-options.html}}. Central pixel in 3 by 3 neighborhood gets average value. Convolution window continues sliding until all pixels in image receive average value. 
+Basic principle of filtering with spatial domain image kernels shown on mean window (Figure~\ref{fig:403}). With 3 by 3 kernel, boundary pixels of image require padding of 1 which is done using different methods, depending on what is desired, such as padding with constant value replication padding, reflection mirror padding, or zero padding \footnote{\url{https://www.mathworks.com/help/images/imfilter-boundary-padding-options.html}}. Central pixel in 3 by 3 neighborhood gets average value. Convolution window continues sliding until all pixels in image receive average value. 
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_105.png}
@@ -60,7 +60,7 @@ Laplacian values are selected to represent second derivative, making it vulnerab
   \caption{second derivative operator}\label{fig:405}
 \end{figure}
 
-There are simpler methods to manipulate images are based on pixel intensity values distribution. Histogram tells how much pixels from 0 (dark) to 255 (bright) are contained in image, equivalently histogram provides high level summary of image based on frequency of each brightness value in image. If image histogram turns out to be bipolar with 2 dominant peaks (a lot of bright and dark pixels), then simple tresholding could be used to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:406}).
+There are simpler methods to manipulate images are based on pixel intensity values distribution. Histogram tells how much pixels from 0 (dark) to 255 (bright) are contained in image, equivalently histogram provides high level summary of image based on frequency of each brightness value in image. If image histogram turns out to be bipolar with 2 dominant peaks (a lot of bright and dark pixels), then simple thresholding could be used to assign 0 = Black for 1 group and 1 = White to another (Figure~\ref{fig:406}).
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_104.png}
@@ -80,9 +80,9 @@ Gamma correction function uses exactly this principle. It is non linear transfer
   \caption{transfer function and gamma correction}\label{fig:407}
 \end{figure}
 
-In probability density function $p_r(r)$ (chance of each brightness value occurance) total area under curve is always 1 because it represents all pixel intensity values. If section is stretched by slope $> 1$, width increases so height must decrease to keep area same. If compressed by slope $<1$, width decreases and height increases (Figure~\ref{fig:408}).
+In probability density function $p_r(r)$ (chance of each brightness value occurrence) total area under curve is always 1 because it represents all pixel intensity values. If section is stretched by slope $> 1$, width increases so height must decrease to keep area same. If compressed by slope $<1$, width decreases and height increases (Figure~\ref{fig:408}).
 
-Histogram equalization achieves best possible contrast in image by using image intensity values histogram $p_r(r)$ to calculate custom transfer function that makes output histogram flat in density $p_s(s)$, equivalently uniform distribution with equal probability of each intensity level occurring. Cumulative distribution function needs to be applied as intensity transfer function. In continuous case with infinitely many brightness levels this is integration of $p_r(r)$. 
+Histogram equalization achieves best possible contrast in image by using image intensity values histogram $p_r(r)$ to calculate custom transfer function that makes output histogram flat in density $p_s(s)$, equivalently uniform distribution with equal probability of each intensity level occurring. Cumulative distribution function needs to be applied as intensity transfer function. In continuous case with infinitely many brightness levels, this is integration of $p_r(r)$. 
 
 \begin{figure}[H]
   \includegraphics[width=0.46\textwidth]{image_108.png}\hspace{4pt}
@@ -117,7 +117,7 @@ I wrote custom functions to perform histogram equalization based on the describe
   \caption{histogram of pout.gif pixel values}\label{fig:410}
 \end{figure}
 
-First of all I store image as 1 dimensional array of brightness values to compute histogram based on their frequency (count). Output on Figure~\ref{fig:410} shows that most pixel values are largely concentrated between 70-150 intensity values range, which indicates poor contrast. As already mentioned in theoretical introduction, values cluttered need to be spread out through whole 0 to 255 value range with enough space inbetween to produce a better image contrast.
+First of all, I store image as 1 dimensional array of brightness values to compute histogram based on their frequency (count). Output on Figure~\ref{fig:410} shows that most pixel values are largely concentrated between 70-150 intensity values range, which indicates poor contrast. As already mentioned in theoretical introduction, values cluttered need to be spread out through whole 0 to 255 value range with enough space inbetween to produce a better image contrast.
 
 \codeused
 \begin{matlab}
@@ -154,7 +154,7 @@ end
 
 \subsubsection{(c) normalise this cumulative sum to the max. pixel value}
 
-Normalize calculated vector by dividing cumulative sum by its last value $cumulative(256)$ which equals total number of pixels. Result is 256 element vector with values from 0 to 1, which is exactly the cumulative distribution function $s_k = T(r_k)$ from Equation~\ref{eq:histeq}. Output on Figure~\ref{fig:411} shows that normalized cumulative sum is a very steep transfer function (will be used as lookup table) that maps cluttered 70-150 intensities value range to 0-1 taking all that range on $y$ axis.
+Normalize calculated vector by dividing cumulative sum by its last value $cumulative(256)$, which equals total number of pixels. Result is 256 element vector with values from 0 to 1, which is exactly the cumulative distribution function $s_k = T(r_k)$ from Equation~\ref{eq:histeq}. Output on Figure~\ref{fig:411} shows that normalized cumulative sum is a very steep transfer function (will be used as lookup table) that maps cluttered 70-150 intensities value range to 0-1 taking all that range on $y$ axis.
 
 \codeused
 \begin{matlab}
@@ -173,7 +173,7 @@ figure; plot(0:255, normalized); title('cumulative sum of histogram');
 
 For each pixel in image, old pixel value is used as index into normalized cumulative sum, and result is multiplied by 255 to get new pixel value. For example, pixel with old value 107 looks up {normalized(108) = 0.31}, multiplied by 255 this gives new value 79. 
 
-Output on Figure~\ref{fig:412} shows resulting resulting output (mapping) vector. These are values of equalized image flattened 1 dimensional vector.
+Output on Figure~\ref{fig:412} shows resulting output (mapping) vector. These are values of equalized image flattened 1 dimensional vector.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_114.png}
@@ -342,7 +342,7 @@ Histogram of image with coin is bipolar with 2 clear peaks of intensity values, 
   \caption{gamma correction with contrast stretch on adler.jpg}\label{fig:419}
 \end{figure}
 
-Output on Figure~\ref{fig:418} and Figure~\ref{fig:419} confirms that stretching did not improve result significantly, slightly improved contrast of the coin details. More important is effect with smaller $\gamma$ = 0.5, after which background gets compressed to a very narrow intensity value range after transfer function applied, and is mostly black, while details on coin are preserved (makes sense, since it is very bright). Even better effect is later on achieved with tresholding.
+Output on Figure~\ref{fig:418} and Figure~\ref{fig:419} confirms that stretching did not improve result significantly, slightly improved contrast of the coin details. More important is effect with smaller $\gamma$ = 0.5, after which background gets compressed to a very narrow intensity value range after transfer function applied, and is mostly black, while details on coin are preserved (makes sense, since it is very bright). Even better effect is later on achieved with thresholding.
 
 Church image looks very dark originally, suggesting that most bright values in image histogram are not occupied. Thus, similarly to image of person, intensities stretching helps significantly. Gamma correction applied just to raw image is also not meaningful.
 
@@ -375,7 +375,7 @@ end
 
 Membranes image as already discussed seems to have 2 major problems. 
 
-First is noise spikes, that can be removed by convolution with 2 dimensional image filter. Since the goal is to preserve edges content, and noise is rare high frequency spikes, median 3 by 3 window would be a best approach. Mean would blur out edges and since noise spikes are rare very bright dots, their effect can be averaged and reduced, but not completely removed. This is exactly noise spike distortion pattern, as shown as example for median filtering on Mathworks \footnote{\url{https://www.mathworks.com/help/images/ref/medfilt2.html}}. In my median filter function I handle boundary pixels by skipping them, loop starts at (1 + edge) and ends at (rows - edge) so border pixels stay 0, since imfilt = zeros(rows, cols) initializes output as all zeros, so bounary pixels are never touched.
+First is noise spikes, that can be removed by convolution with 2 dimensional image filter. Since the goal is to preserve edges content, and noise is rare high frequency spikes, median 3 by 3 window would be a best approach. Mean would blur out edges and since noise spikes are rare very bright dots, their effect can be averaged and reduced, but not completely removed. This is exactly noise spike distortion pattern, as shown as example for median filtering on Mathworks \footnote{\url{https://www.mathworks.com/help/images/ref/medfilt2.html}}. In my median filter function I handle boundary pixels by skipping them, loop starts at (1 + edge) and ends at (rows - edge) so border pixels stay 0, since imfilt = zeros(rows, cols) initializes output as all zeros, so boundary pixels are never touched.
 
 Second, is that image looks very grey, suggesting that histogram equalization is required to spread out intensity values and improve contrast, so that later on edges can be meaningfully amplified using Laplace operator.
 
@@ -462,7 +462,7 @@ end
   \caption{edge detection with laplacian and LoG before equalization}\label{fig:424}
 \end{figure}
 
-For the edge detection I used laplacian and laplacian of gaussian discussed in theoretical introduction to highlight edges better. However a lot of tiny details on membrane, which are high frequency changes, distracted Laplacian and result is overamplified details across all image, not edges as I wanted (Figure~\ref{fig:424}). Gaussian applied before laplacian helps by smoothing such tiny details in membranes, producing more or less what is desired. As discussed earlier, gaussian as expected does not ruin membranes edges before laplacian is applied because of weighting central pixel of kernel window more.
+For the edge detection I used laplacian and laplacian of gaussian discussed in theoretical introduction to highlight edges better. However, a lot of tiny details on membrane, which are high frequency changes, distracted Laplacian and result is overamplified details across all image, not edges as I wanted (Figure~\ref{fig:424}). Gaussian applied before laplacian helps by smoothing such tiny details in membranes, producing more or less what is desired. As discussed earlier, gaussian as expected does not ruin membranes edges before laplacian is applied because of weighting central pixel of kernel window more.
 
 \codeused
 \begin{matlab}
@@ -542,7 +542,7 @@ subplot(1, 2, 2); bar(0:255, histcounts(adler(:), 0:256)); title('histogram');
 
 \subsubsection{(a) so that the background has only one colour without disturbing the coin}
 
-First I select threshold value of 150 arbitrary between peaks in intensity values on histogram (Figure~\ref{fig:425}). Pixels of the left peak are background pixels, because their intensity value is low. Thus, for all pixels below treshold assign value 0 = Black.
+First I select threshold value of 150 arbitrary between peaks in intensity values on histogram (Figure~\ref{fig:425}). Pixels of the left peak are background pixels, because their intensity value is low. Thus, for all pixels below threshold assign value 0 = Black.
 
 \begin{figure}[H]
   \includegraphics[width=0.6\textwidth]{image_66.jpg}
@@ -586,7 +586,7 @@ I used HSV color model (NB: worked better with this image than rgb2ycbcr with gr
   \caption{HSV color model based histogram equalization on church2.png}\label{fig:428}
 \end{figure}
 
-Output on Figure~\ref{fig:428} shows extremely good result with even dark grass getting enough contrast. My assumption is that given image is just artifically darkened with pixel intensities range compressed to a narrow. Thus, once equalization spreads them out, result is perfect.
+Output on Figure~\ref{fig:428} shows extremely good result with even dark grass getting enough contrast. My assumption is that given image is just artificially darkened with pixel intensities range compressed to a narrow. Thus, once equalization spreads them out, result is perfect.
 
 \codeused
 \begin{matlab}
